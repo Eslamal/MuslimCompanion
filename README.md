@@ -1,4 +1,5 @@
 About The Project
+
 The "Muslim Companion" project aims to provide a comprehensive, reliable, and user-friendly mobile application. The app is built to be a daily companion for Muslims, combining essential functionalities like Quran reading, prayer times, and Azkar in one place. It makes most of its content available offline to ensure accessibility anytime, anywhere.
 
 ✨ Key Features
