@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="5dp">
+    <androidx.cardview.widget.CardView
+        android:id="@+id/surah_name1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        android:layout_marginBottom="8dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/transparent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/surah_item_3d_background"
+            android:padding="12dp"
+            android:gravity="center_vertical"
+            android:layoutDirection="ltr">
+            <TextView
+                android:id="@+id/surah_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:textColor="@color/text_primary" /> </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <WebView
+        android:id="@+id/quran_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/surah_name1"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="?android:attr/colorBackground" /> </RelativeLayout>

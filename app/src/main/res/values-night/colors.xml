@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color> <color name="purple_500">#FF6200EE</color> <color name="purple_700">#FF3700B3</color> <color name="teal_200">#FF03DAC5</color> <color name="teal_700">#FF018786</color> <color name="black">#FFFFFFFF</color> <color name="white">#FF000000</color> <color name="grey">#aaaaaa</color>
+    <color name="lightGrey">#7a7a7a</color>
+    <color name="veryLightGrey">#202020</color>
+    <color name="purple">#7d64e6</color>
+    <color name="yellow">#ffee00</color>
+
+    <color name="colorPrimary">#212121</color> <color name="colorPrimaryVariant">#000000</color> <color name="colorOnPrimary">#FFFFFF</color>
+
+    <color name="colorSecondary">#FFC107</color>
+    <color name="colorSecondaryVariant">#FFB300</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+
+    <color name="prayer_highlight_background">#2C3E50</color> <color name="background_main">#121212</color> <color name="card_background">#1E1E1E</color> <color name="card_highlight">#333333</color> <color name="text_primary">#FFFFFF</color> <color name="text_secondary">#BBBBBB</color> <color name="text_highlight">#BB86FC</color> <color name="text_white">#000000</color> <color name="selected_day_color">#BB86FC</color> <color name="today_day_color">#FFD700</color> <color name="qibla_button_color">#00C853</color> <color name="green_quran">#66BB6A</color> <color name="purple_azkar">#BB86FC</color> <color name="black_azan">#FFFFFF</color> <color name="transparent">#00FFFFFF</color>
+    <color name="background_main_neumorphic">#2C2C2C</color> <color name="light_shadow">#424242</color> <color name="dark_shadow">#1A1A1A</color>  </resources>

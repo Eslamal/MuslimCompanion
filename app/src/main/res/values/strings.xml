@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Islamic</string>
+
+
+    <string name="button_quran">Quran</string>
+    <string name="button_athkar">Azkar</string>
+    <string name="button_tafseer">Tafseer</string>
+    <string name="azkar_alsabah"> الصباح</string>
+    <string name="azkar_almasaa"> المساء</string>
+    <string name="azkar_afterPraying">بعد الصلاة</string>
+    <string name="repeat">Repeat</string>
+    <string name="repeat_count_format">مرات التكرار: %1$s</string>
+
+
+    <string name="next_prayer_format">الصلاة القادمة: %1$s</string>
+    <string name="time_remaining_format">الوقت المتبقي: %1$s</string>
+    <string name="fajr">الفجر</string>
+    <string name="Dhuhr">الظهر</string>
+    <string name="Asr">العصر</string>
+    <string name="Maghrib">المغرب</string>
+    <string name="isha">العشاء</string>
+    <string name="unknown_city">مدينة غير معروفة</string>
+    <string name="unknown_country">دولة غير معروفة</string>
+    <string name="location_format">%1$s، %2$s</string>
+    <string name="location_not_available">الموقع غير متاح</string>
+    <string name="error_fetching_location">خطأ في جلب الموقع</string>
+    <string name="location_permission_needed">صلاحية الموقع مطلوبة لعرض أوقات الصلاة</string>
+    <string name="today">اليوم</string>
+
+    <string name="allow">You have to allow us to know your location to can see prayer times</string>
+    <string name="get_location">Get My Location</string>
+    <string name="prayer_app">Prayer App</string>
+    <string name="gps_settings_title">GPS settings</string>
+    <string name="gps_settings_text">GPS is not enabled. Do you want to go to settings menu?</string>
+    <string name="settings_button_ok">Settings</string>
+    <string name="settings_button_cancel">Cancel</string>
+    <string name="msg_permission_not_granted_yet">اضغط للحصول على الموقع   </string>
+    <string name="msg_permission_granted">Location Access Granted, press GPS button now.</string>
+    <string name="toast_permission_required">This app requires Access Location</string>
+    <string name="your_location">    %f,%f    </string>
+    <string name="show_location">(%f,%f)</string>
+    <string name="location_not_ready">Location not ready, please press button again.</string>
+    <string name="qibla_direction">اتجاه القبلة : %f من درجة من الشمال</string>
+    <string name="pls_enable_location">Please turn on Location and press the button again.</string>
+    <string name="degree_from_north">degrees from the north.</string>
+    <string name="using_last_location">using last location.</string>
+
+
+</resources>
