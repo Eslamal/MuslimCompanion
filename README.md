@@ -1,91 +1,61 @@
-🕌 Muslim Companion App
-Muslim Companion is a comprehensive, open-source Islamic application for Android, designed to be the daily assistant for every Muslim. The app provides an integrated suite of tools and features for daily worship and life, with a focus on ease of use and offline support for many core functionalities.
+About The Project
+The "Muslim Companion" project aims to provide a comprehensive, reliable, and user-friendly mobile application. The app is built to be a daily companion for Muslims, combining essential functionalities like Quran reading, prayer times, and Azkar in one place. It makes most of its content available offline to ensure accessibility anytime, anywhere.
 
 ✨ Key Features
-Holy Quran (Offline):
+📖 Holy Quran (Offline)
 
-Complete index of all Surahs in the Holy Quran.
+Full Surah index for easy navigation.
 
-Read Surahs with high-quality text rendered using the authentic Uthmanic Hafs font for the best reading experience.
+Clear, high-quality Quranic text using a custom Uthmanic font.
 
-A dedicated reader screen that supports both light and dark modes for eye comfort.
+Dark mode support for a comfortable reading experience at night.
 
-Data is loaded from local JSON files (Quran.json, QuranDetails.json) packaged with the app.
+📿 Azkar & Tasbeeh (Offline)
 
-Azkar & Hisn Al-Muslim (Offline):
+Morning, Evening, and Post-Prayer remembrances.
 
-A complete collection of daily remembrances (Azkar), including:
+Repetition counter for each Zikr to help you keep track.
 
-Morning Azkar (Remembrances).
+📚 Hadith (Offline)
 
-Evening Azkar (Remembrances).
+A library of Hadith from authentic sources (Bukhari, Muslim, etc.).
 
-Azkar after prayer.
+🕌 Prayer Times & Adhan
 
-Displays the repetition count for each Zikr to help the user keep track.
+Accurate prayer time calculations based on your location.
 
-Hadith (Offline):
+Notification for the upcoming prayer and the time remaining.
 
-A library of Prophetic Hadiths from major books like Sahih al-Bukhari and Sahih Muslim.
+Monthly calendar view for prayer timings.
 
-Hadith data is loaded from a local JSON file (file.json).
+🧭 Qibla Direction
 
-Prayer Times:
+An accurate compass to determine the Qibla direction using device sensors.
 
-Accurate display of the five daily prayer times based on the user's geographic location.
 
-Identifies the next prayer and displays the time remaining for it.
+Tech Stack & Architecture
+The app is built using modern, Google-recommended best practices to ensure high performance and a maintainable codebase.
 
-A calendar interface allows users to browse prayer times for different days of the month.
+Programming Languages: Kotlin (primary) and Java.
 
-Data is fetched online from the api.aladhan.com API.
+Architecture: MVVM (Model-View-ViewModel).
 
-Qibla Direction:
+Jetpack Libraries:
 
-An accurate compass to determine the direction of the Qibla using the device's sensors and location.
+ViewModel: To manage UI-related data in a lifecycle-conscious way.
 
-A graphical interface that shows the Qibla direction relative to the device's current orientation.
+LiveData: For building observable, data-driven UIs.
 
-🏛️ App Architecture & Technical Details
-The application is built following the MVVM (Model-View-ViewModel) architecture to ensure organized code, separation of concerns, and to facilitate future maintenance and development.
+RecyclerView: For displaying large lists efficiently.
 
-Programming Languages: The app is developed using a mix of Kotlin for modern features and Java for some legacy components.
+ViewBinding: For safer interaction between code and XML layouts.
 
-Data Source: The app uses a hybrid model:
+Asynchronous Programming: Kotlin Coroutines for managing background tasks smoothly.
 
-Local Data: Quran, Azkar, and Hadith data are stored in JSON files within the app's assets folder. This ensures that these core features work perfectly offline.
+Networking: Retrofit & OkHttp for fetching data from the internet (e.g., prayer times).
 
-Remote Data: Prayer times are fetched dynamically from an external API (api.aladhan.com) using the Retrofit library.
+Data Source:
 
-State & Data Management: ViewModel and LiveData are used to efficiently manage UI-related data and its state.
+Local JSON Files: For storing Quran, Hadith, and Azkar data (works offline).
 
-Location Services:
-
-For Prayer Times: FusedLocationProviderClient is used to get the user's precise location.
-
-For Qibla: LocationManager is used in conjunction with device sensors (ACCELEROMETER, MAGNETIC_FIELD).
-
-🛠️ Technologies & Libraries Used
-Languages: Kotlin & Java
-
-Architecture: MVVM (ViewModel, LiveData, Repository)
-
-Android Jetpack:
-
-ViewModel, LiveData
-
-RecyclerView, CardView
-
-ViewBinding
-
-Asynchronous Programming: Kotlin Coroutines
-
-Networking: Retrofit2 & OkHttp3
-
-Database: Room (for caching or future storage of prayer data).
-
-UI:
-
-WebView for rendering Quran content with HTML/CSS.
-
-Dark Mode Support.
+Remote API: For fetching dynamic data (e.g., prayer times from api.aladhan.com).
