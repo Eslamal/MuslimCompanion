@@ -46,4 +46,8 @@
     <string name="using_last_location">using last location.</string>
 
 
+    <string name="getting_location">جاري تحديد موقعك…</string>
+    <string name="location_fetch_failed">فشل تحديد الموقع</string>
+
+
 </resources>

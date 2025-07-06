@@ -2,9 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Your original permissions -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+     FIX #1: Explicitly state that GPS is NOT required.
+     This tells the Amazon Appstore that devices without a GPS chip (like many Fire Tablets)
+     can still run your app. Your app should handle cases where fine location is not available.
+    -->
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+
+
+    <!--
+     FIX #2: Explicitly state that a camera is NOT required.
+     This is important if your QiblaActivity uses the camera. This ensures your app
+     can be installed on devices without a camera, like Fire TV.
+    -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
 
     <application
         android:allowBackup="true"
@@ -19,17 +38,16 @@
         <activity
             android:name=".SplashScreen"
             android:exported="true" >
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
             android:exported="false"/>
 
-
+        <!-- NOTE: These empty meta-data tags are not necessary, but they are harmless. -->
         <activity
             android:name=".view.Azkar_After"
             android:exported="false">

@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_main_neumorphic" android:layoutDirection="rtl" tools:context=".view.QiblaActivity">
+    tools:context=".view.QiblaActivity">
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/nav_host_fragment_activity_main"
-        android:name="com.example.prayer.qibla.CompassFragment" android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:id="@+id/nav_host_fragment_qibla"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

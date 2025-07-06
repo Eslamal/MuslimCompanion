@@ -1,286 +1,171 @@
-package com.example.prayer.qibla
+package com.example.islamic.qibla
 
 import android.Manifest
 import android.content.Context
-import android.content.Context.LOCATION_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.hardware.SensorManager
-import android.location.LocationManager
+import android.location.Location
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.INVISIBLE
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.islamic.LocationHelper
+import com.example.islamic.LocationResultListener
 import com.example.islamic.R
 import com.example.islamic.databinding.FragmentCompassBinding
 import com.example.islamic.qibla.Compass
-import com.example.islamic.qibla.GPSTracker
 import com.example.islamic.qibla.showToast
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
 class CompassFragment : Fragment() {
-    private lateinit var locationManager: LocationManager
-    private lateinit var binding: FragmentCompassBinding
+
+    private var _binding: FragmentCompassBinding? = null
+    private val binding get() = _binding!!
 
     private var compass: Compass? = null
-    private var currentAzimuth: Float = 0.toFloat()
+    private var currentAzimuth: Float = 0f
     private lateinit var prefs: SharedPreferences
-    private lateinit var gps: GPSTracker
+    private lateinit var locationHelper: LocationHelper
+    private var userLocation: Location? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return if (::binding.isInitialized) {
-            binding.root
-        } else {
-            binding = FragmentCompassBinding.inflate(inflater, container, false)
-            with(binding) {
-                root 
-            }
-        }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentCompassBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.imgQiblaArrow.visibility = INVISIBLE
-        binding.imgQiblaArrow.visibility = View.GONE
-        prefs = requireContext().getSharedPreferences("", Context.MODE_PRIVATE)
-        locationManager = context?.getSystemService(LOCATION_SERVICE) as LocationManager
-        gps = GPSTracker(locationManager)
+        prefs = requireContext().getSharedPreferences("qibla_prefs", Context.MODE_PRIVATE)
+        locationHelper = LocationHelper(requireContext())
         setupCompass()
-        binding.btnGps.setOnClickListener { fetchGPS() }
+        binding.btnGps.setOnClickListener { checkPermissionsAndFetchLocation() }
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG, "start compass")
+    override fun onResume() {
+        super.onResume()
         compass?.start()
+        checkPermissionsAndFetchLocation()
     }
 
-    override fun onStop() {
-        super.onStop()
-        Log.d(TAG, "stop compass")
+    override fun onPause() {
+        super.onPause()
         compass?.stop()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun setupCompass() {
-        binding.textKaabaDir.text = resources.getString(R.string.msg_permission_not_granted_yet)
-        binding.textCurrentLoc.text =
-            resources.getString(R.string.msg_permission_not_granted_yet)
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ),
-            1
-        )
-        compass = context?.let {
-            val sensorManager = it.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            Compass(sensorManager)
-        }
+        val sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        compass = Compass(sensorManager)
         compass?.setListener(object : Compass.CompassListener {
             override fun onNewAzimuth(azimuth: Float) {
-                adjustGambarDial(azimuth)
-                adjustArrowQiblat(azimuth)
+                adjustUI(azimuth)
             }
         })
     }
 
-
-    private fun adjustGambarDial(azimuth: Float) {
-
-        val an = RotateAnimation(
-            -currentAzimuth, -azimuth,
-            Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-            0.5f
-        )
-        currentAzimuth = azimuth
-        an.duration = 500
-        an.repeatCount = 0
-        an.fillAfter = true
-        binding.imgCompass.startAnimation(an)
-    }
-
-    private fun adjustArrowQiblat(azimuth: Float) {
-
-        val qiblaDir = retrieveFloat()
-        val an = RotateAnimation(
-            -currentAzimuth + qiblaDir, -azimuth,
-            Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-            0.5f
-        )
-        currentAzimuth = azimuth
-        an.duration = 500
-        an.repeatCount = 0
-        an.fillAfter = true
-        binding.imgQiblaArrow.startAnimation(an)
-        if (qiblaDir > 0) {
-            binding.imgQiblaArrow.visibility = View.VISIBLE
+    private fun checkPermissionsAndFetchLocation() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_CODE)
         } else {
-            binding.imgQiblaArrow.visibility = INVISIBLE
-            binding.imgQiblaArrow.visibility = View.GONE
+            fetchLocation()
         }
     }
 
-    private fun getBearing() {
-
-        val qiblaDir = retrieveFloat()
-        if (qiblaDir > 0.0001) {
-            binding.textCurrentLoc.text =
-                getString(R.string.your_location, gps.latitude, gps.longitude)
-            binding.textKaabaDir.text = getString(R.string.qibla_direction, qiblaDir)
-
-            binding.btnGps.setImageDrawable(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.ic_my_location
-                )
-            )
-
-            binding.imgQiblaArrow.visibility = View.VISIBLE
-        } else {
-            fetchGPS()
-        }
-    }
-
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
-    ) {
-        when (requestCode) {
-            1 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getBearing()
-                    binding.textKaabaDir.text = resources.getString(R.string.msg_permission_granted)
-                    binding.textCurrentLoc.text =
-                        resources.getString(R.string.msg_permission_granted)
-                    binding.imgQiblaArrow.visibility = INVISIBLE
-                    binding.imgQiblaArrow.visibility = View.GONE
-
-                } else {
-                    showToast(getString(R.string.toast_permission_required))
-                }
-                return
-            }
-        }
-    }
-
-    private fun saveFloat(value: Float?) {
-        val edit = prefs.edit()
-        edit.putFloat(KEY_LOC, value ?: 0f)
-        edit.apply()
-    }
-
-    private fun retrieveFloat(value: String = KEY_LOC): Float {
-        return prefs.getFloat(value, 0f)
-    }
-
-    private fun fetchGPS() {
-        val result: Double
-        gps = GPSTracker(locationManager)
-        if (gps.canGetLocation()) {
-            val latitude = gps.latitude
-            val longitude = gps.longitude
-            binding.textCurrentLoc.text = getString(R.string.your_location, latitude, longitude)
-            showToast(getString(R.string.your_location, latitude, longitude))
-            Log.e("TAG", "GPS is on")
-            if (latitude < 0.001 && longitude < 0.001) {
-                binding.imgQiblaArrow.visibility = INVISIBLE
-                binding.imgQiblaArrow.visibility = View.GONE
-                binding.textKaabaDir.text = resources.getString(R.string.location_not_ready)
-                binding.textCurrentLoc.text = resources.getString(R.string.location_not_ready)
-                binding.btnGps.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.ic_my_location
-                    )
-                )
-                showToast("Location not ready, Please Restart Application")
-            } else {
-                binding.btnGps.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.ic_my_location
-                    )
-                )
-                val longitude2 =
-                    KA_BA_POSITION_LONGITUDE
-                val latitude2 =
-                    Math.toRadians(KA_BA_POSITION_LATITUDE)
-                val latitude1 = Math.toRadians(latitude)
-                val longDiff = Math.toRadians(longitude2 - longitude)
-                val y = sin(longDiff) * cos(latitude2)
-                val x =
-                    cos(latitude1) * sin(latitude2) - sin(latitude1) * cos(latitude2) * cos(longDiff)
-                result = (Math.toDegrees(atan2(y, x)) + 360) % 360
-                val result2 = result.toFloat()
-                saveFloat(value = result2)
-                binding.textKaabaDir.text =
-                    getString(R.string.qibla_direction, result2)
-                Toast.makeText(
-                    context,
-                    getString(R.string.qibla_direction, result2),
-                    Toast.LENGTH_LONG
-                ).show()
+    private fun fetchLocation() {
+        binding.textKaabaDir.text = getString(R.string.getting_location)
+        locationHelper.requestSingleLocationUpdate(object : LocationResultListener {
+            override fun onLocationResult(location: Location) {
+                userLocation = location
+                val qiblaDirection = calculateQiblaDirection(location)
+                saveFloat(qiblaDirection)
+                binding.textKaabaDir.text = getString(R.string.qibla_direction, qiblaDirection)
+                binding.textCurrentLoc.text = getString(R.string.your_location, location.latitude, location.longitude)
                 binding.imgQiblaArrow.visibility = View.VISIBLE
-
             }
-            showToast(getString(R.string.show_location, latitude, longitude))
+
+            override fun onLocationFailed(reason: String) {
+                binding.textKaabaDir.text = getString(R.string.location_fetch_failed)
+                Toast.makeText(context, reason, Toast.LENGTH_SHORT).show()
+                if (reason.contains("provider", true)) {
+                    showSettingsAlert()
+                }
+            }
+        })
+    }
+
+    private fun adjustUI(azimuth: Float) {
+        val qiblaDirection = retrieveFloat()
+
+        val compassAnimation = RotateAnimation(-currentAzimuth, -azimuth, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        compassAnimation.duration = 500
+        compassAnimation.repeatCount = 0
+        compassAnimation.fillAfter = true
+        binding.imgCompass.startAnimation(compassAnimation)
+
+        val qiblaAnimation = RotateAnimation(-currentAzimuth + qiblaDirection, -azimuth, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        qiblaAnimation.duration = 500
+        qiblaAnimation.repeatCount = 0
+        qiblaAnimation.fillAfter = true
+        binding.imgQiblaArrow.startAnimation(qiblaAnimation)
+
+        currentAzimuth = azimuth
+    }
+
+    private fun calculateQiblaDirection(location: Location): Float {
+        val userLatRad = Math.toRadians(location.latitude)
+        val userLonRad = Math.toRadians(location.longitude)
+        val kaabaLatRad = Math.toRadians(KA_BA_POSITION_LATITUDE)
+        val kaabaLonRad = Math.toRadians(KA_BA_POSITION_LONGITUDE)
+        val lonDiff = kaabaLonRad - userLonRad
+        val y = sin(lonDiff) * cos(kaabaLatRad)
+        val x = cos(userLatRad) * sin(kaabaLatRad) - sin(userLatRad) * cos(kaabaLatRad) * cos(lonDiff)
+        return (Math.toDegrees(atan2(y, x)).toFloat() + 360) % 360
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            fetchLocation()
         } else {
-            showSettingsAlert()
-
-
-            binding.imgQiblaArrow.visibility = INVISIBLE
-            binding.imgQiblaArrow.visibility = View.GONE
-            binding.textKaabaDir.text = resources.getString(R.string.pls_enable_location)
-            binding.textCurrentLoc.text = resources.getString(R.string.pls_enable_location)
-            binding.btnGps.setImageDrawable(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.ic_my_location
-                )
-            )
-            showToast("Please enable Location first and Restart Application")
+            binding.textKaabaDir.text = getString(R.string.msg_permission_not_granted_yet)
+            showToast(getString(R.string.toast_permission_required))
         }
     }
+
     private fun showSettingsAlert() {
-        val alertDialog = context?.let { AlertDialog.Builder(it) }
-
-        alertDialog?.setTitle(getString(R.string.gps_settings_title))
-
-        alertDialog?.setMessage(getString(R.string.gps_settings_text))
-
-        alertDialog?.setPositiveButton(getString(R.string.settings_button_ok)) { _, _ ->
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivity(intent)
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle(getString(R.string.gps_settings_title))
+            setMessage(getString(R.string.gps_settings_text))
+            setPositiveButton(getString(R.string.settings_button_ok)) { _, _ ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+            setNegativeButton(getString(R.string.settings_button_cancel)) { dialog, _ -> dialog.cancel() }
+            show()
         }
-
-        alertDialog?.setNegativeButton(getString(R.string.settings_button_cancel)) { dialog, _ -> dialog.cancel() }
-
-        alertDialog?.show()
     }
+
+    private fun saveFloat(value: Float?) = prefs.edit().putFloat(KEY_LOC, value ?: 0f).apply()
+    private fun retrieveFloat(key: String = KEY_LOC): Float = prefs.getFloat(key, 0f)
 
     companion object {
-        private val TAG = CompassFragment::class.java.simpleName
-        private const val KEY_LOC = "SAVED_LOC"
+        private const val KEY_LOC = "qibla_direction_v2"
         private const val KA_BA_POSITION_LONGITUDE = 39.826206
         private const val KA_BA_POSITION_LATITUDE = 21.422487
+        private const val PERMISSION_REQUEST_CODE = 101
     }
 }
