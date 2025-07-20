@@ -1,30 +1,53 @@
 package com.example.islamic.model
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.example.islamic.api.PrayerApi
-import com.example.islamic.model.PrayerData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import retrofit2.Response
+import com.batoulapps.adhan.CalculationMethod
+import com.batoulapps.adhan.Coordinates
+import com.batoulapps.adhan.Madhab
+import com.batoulapps.adhan.PrayerTimes
+import com.batoulapps.adhan.data.DateComponents
+import java.text.SimpleDateFormat
+import java.util.*
 
-class PrayerRepository(private val prayerApi: PrayerApi) {
+class PrayerRepository(private val prayerTimingDao: PrayerTimingDao) {
 
-    private val _prayerData = MutableLiveData<PrayerData?>()
-    val prayerData: LiveData<PrayerData?> get() = _prayerData
+    // دالة جديدة للحساب المحلي
+    fun calculateAndGetPrayerTimes(latitude: Double, longitude: Double): PrayerTimingEntity {
+        // 1. الحصول على الإحداثيات
+        val coordinates = Coordinates(latitude, longitude)
 
-    suspend fun getPrayerTimes(latitude: String, longitude: String, month: String, year: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                val response: Response<PrayerData?> = prayerApi.getPrayerTimes(latitude, longitude, month, year)
-                if (response.isSuccessful) {
-                    _prayerData.postValue(response.body())
-                } else {
-                    _prayerData.postValue(null)
-                }
-            } catch (e: Exception) {
-                _prayerData.postValue(null)
-            }
-        }
+        // 2. الحصول على تاريخ اليوم
+        val date = DateComponents.from(Date())
+
+        // 3. تحديد طريقة الحساب (الهيئة المصرية العامة للمساحة)
+        // ### بداية التعديل النهائي ###
+        val params = CalculationMethod.EGYPTIAN.parameters
+        params.madhab = Madhab.SHAFI // نقوم بتعديل المذهب مباشرة هكذا
+        // ### نهاية التعديل النهائي ###
+
+        // 4. حساب أوقات الصلاة
+        val prayerTimes = PrayerTimes(coordinates, date, params)
+
+        // 5. تنسيق الوقت
+        val formatter = SimpleDateFormat("hh:mm a", Locale("ar"))
+
+        // 6. إنشاء كائن لتخزينه أو عرضه
+        return PrayerTimingEntity(
+            date = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date()),
+            fajr = formatter.format(prayerTimes.fajr),
+            sunrise = formatter.format(prayerTimes.sunrise),
+            dhuhr = formatter.format(prayerTimes.dhuhr),
+            asr = formatter.format(prayerTimes.asr),
+            maghrib = formatter.format(prayerTimes.maghrib),
+            isha = formatter.format(prayerTimes.isha)
+        )
+    }
+
+    // دوال قاعدة البيانات
+    suspend fun insertPrayerTimings(prayerTiming: PrayerTimingEntity) {
+        prayerTimingDao.insertPrayerTiming(prayerTiming)
+    }
+
+    suspend fun getPrayerTimingForDate(date: String): PrayerTimingEntity? {
+        return prayerTimingDao.getPrayerTimingByDate(date)
     }
 }

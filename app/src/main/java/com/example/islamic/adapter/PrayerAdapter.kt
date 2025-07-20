@@ -1,112 +1,82 @@
 package com.example.islamic.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.islamic.R
+import com.example.islamic.databinding.ItemCalenderBinding
 import com.example.islamic.model.Day
-import java.text.SimpleDateFormat
 import java.util.*
 
 class PrayerAdapter(
-    private var daysList: List<Day>,
-    private val clickListener: OnClickDayListener,
-    private val locale: Locale
+    private var days: List<Day>,
+    private val listener: OnClickDayListener,
+    private val arabicLocale: Locale
 ) : RecyclerView.Adapter<PrayerAdapter.ViewHolder>() {
 
-    private var selectedPosition = RecyclerView.NO_POSITION
+    private var selectedDay: Day? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_calender, parent, false)
-        return ViewHolder(view)
+        val binding = ItemCalenderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentDay = daysList[position]
-        holder.bind(currentDay)
-        if (currentDay.selected) {
-            holder.itemView.setBackgroundResource(R.drawable.selected_day_background)
-            holder.num.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
-            holder.day.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
-        } else if (currentDay.today) {
-            holder.itemView.setBackgroundResource(R.drawable.today_day_background)
-            holder.num.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.black))
-            holder.day.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.black))
-        } else {
-            holder.itemView.setBackgroundResource(R.drawable.background)
-            holder.num.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.black))
-            holder.day.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.black))
-        }
+        val day = days[position]
+        holder.bind(day)
     }
 
-    override fun getItemCount(): Int {
-        return daysList.size
-    }
+    override fun getItemCount(): Int = days.size
 
-    fun setData(newList: List<Day>) {
-        daysList = newList
-        selectedPosition = RecyclerView.NO_POSITION
-        val currentDayIndex = daysList.indexOfFirst { it.today }
-        if (currentDayIndex != -1) {
-            if (selectedPosition == RecyclerView.NO_POSITION) {
-                daysList[currentDayIndex].selected = true
-                selectedPosition = currentDayIndex
-            }
-        }
+    fun setData(newDays: List<Day>) {
+        this.days = newDays
+        this.selectedDay = newDays.find { it.isToday } ?: newDays.firstOrNull()
         notifyDataSetChanged()
     }
 
-
-    fun setSelectedDay(dayToSelect: Day) {
-        val newSelectedPosition = daysList.indexOf(dayToSelect)
-        if (newSelectedPosition != RecyclerView.NO_POSITION) {
-            if (selectedPosition != RecyclerView.NO_POSITION && selectedPosition < daysList.size) {
-                if (daysList.indices.contains(selectedPosition)) {
-                    daysList[selectedPosition].selected = false
-                    notifyItemChanged(selectedPosition)
-                }
-            }
-            selectedPosition = newSelectedPosition
-            daysList[selectedPosition].selected = true
-            notifyItemChanged(selectedPosition)
-        }
+    fun setSelectedDay(day: Day) {
+        selectedDay = day
+        notifyDataSetChanged()
     }
 
+    fun isCurrentDaySelectedToday(): Boolean {
+        return selectedDay?.isToday ?: false
+    }
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    inner class ViewHolder(private val binding: ItemCalenderBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(day: Day) {
+            binding.date.text = convertToEasternArabic(day.dayNum.toString())
+            binding.day.text = getArabicDayName(day.dayOfWeekEn)
 
-        var num: TextView = view.findViewById(R.id.date)
-        var day: TextView = view.findViewById(R.id.day)
+            val context = itemView.context
 
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        override fun onClick(p0: View?) {
-            when (p0) {
-                itemView -> {
-                    val clickedDay = daysList[adapterPosition]
-                    setSelectedDay(clickedDay)
-                    clickListener.onDayClick(clickedDay)
+            // *** بداية المنطق الجديد لتمييز الخلفية ***
+            when {
+                // إذا كان اليوم هو اليوم المحدد
+                day == selectedDay -> {
+                    binding.clCalendarItem.setBackgroundResource(R.drawable.today_item_background)
+                    binding.date.setTextColor(ContextCompat.getColor(context, R.color.green_quran))
+                    binding.day.setTextColor(ContextCompat.getColor(context, R.color.green_quran))
+                }
+                // إذا كان اليوم هو اليوم الحالي (وليس المحدد)
+                day.isToday -> {
+                    binding.clCalendarItem.setBackgroundResource(R.drawable.today_day_background)
+                    binding.date.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                    binding.day.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                }
+                // أي يوم آخر
+                else -> {
+                    binding.clCalendarItem.setBackgroundResource(R.drawable.neumorphic_card_background)
+                    binding.date.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                    binding.day.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
                 }
             }
-        }
+            // *** نهاية المنطق الجديد ***
 
-        fun bind(dayData: Day) {
-            num.text = convertToEasternArabic(dayData.day.toString())
-
-            val calendar = Calendar.getInstance(locale)
-            calendar.set(Calendar.YEAR, dayData.year)
-            calendar.set(Calendar.MONTH, dayData.month - 1)
-            calendar.set(Calendar.DAY_OF_MONTH, dayData.day)
-
-            val dayOfWeekFormat = SimpleDateFormat("EE", locale)
-            day.text = dayOfWeekFormat.format(calendar.time)
-            if (dayData.today && !dayData.selected) {
-                day.text = itemView.context.getString(R.string.today)
+            itemView.setOnClickListener {
+                listener.onDayClick(day)
             }
         }
     }
@@ -115,12 +85,26 @@ class PrayerAdapter(
         fun onDayClick(item: Day)
     }
 
+    // ... باقي الدوال المساعدة تبقى كما هي ...
+    private fun getArabicDayName(dayOfWeekEn: String): String {
+        return when (dayOfWeekEn.lowercase(Locale.US)) {
+            "saturday" -> "السبت"
+            "sunday" -> "الأحد"
+            "monday" -> "الاثنين"
+            "tuesday" -> "الثلاثاء"
+            "wednesday" -> "الأربعاء"
+            "thursday" -> "الخميس"
+            "friday" -> "الجمعة"
+            else -> dayOfWeekEn
+        }
+    }
+
     private fun convertToEasternArabic(numberString: String): String {
         val arabicNumbers = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
         val builder = StringBuilder()
         for (char in numberString) {
             if (char.isDigit()) {
-                builder.append(arabicNumbers[char.toString().toInt()])
+                builder.append(arabicNumbers[Character.getNumericValue(char)])
             } else {
                 builder.append(char)
             }

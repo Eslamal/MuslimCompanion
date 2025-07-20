@@ -7,38 +7,35 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.islamic.LocationHelper
 import com.example.islamic.LocationResultListener
 import com.example.islamic.R
 import com.example.islamic.adapter.PrayerAdapter
 import com.example.islamic.databinding.ActivityPrayerBinding
 import com.example.islamic.model.Day
-import com.example.islamic.model.Timings
+import com.example.islamic.model.PrayerTimingEntity
 import com.example.islamic.viewmodel.PrayerHomeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
+
     private lateinit var binding: ActivityPrayerBinding
     private lateinit var prayerViewModel: PrayerHomeViewModel
-    private val calendar = Calendar.getInstance()
-    private var currentDay = 0
-    private var currentMonth = 0
-    private var currentYear = 0
-    private var day = 0
-    private var month = 0
-    private var year = 0
-    private var mylat: String = ""
-    private var myLong: String = ""
-    private lateinit var daysAdapter: PrayerAdapter
     private lateinit var locationHelper: LocationHelper
-    private val arabicLocale = Locale("ar", "EG")
+    private lateinit var daysAdapter: PrayerAdapter
+    private val calendar = Calendar.getInstance()
+    private var lastKnownLocation: Location? = null
+
+    // *** تعريف متغير الريفرش ***
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     companion object {
         const val PERMISSION_ID = 42
@@ -47,191 +44,185 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPrayerBinding.inflate(layoutInflater)
+        // **ملاحظة:** تأكد من أن layout الخاص بك هو activity_prayer.xml
+        // وإذا كنت تستخدم ViewBinding، لا تحتاج لـ findViewById. إذا لم تكن تستخدمه، تجاهل هذه الملاحظة.
         setContentView(binding.root)
         supportActionBar?.hide()
 
+        // *** ربط متغير الريفرش بالواجهة ***
+        // إذا كنت لا تستخدم ViewBinding، استخدم هذا السطر:
+        // swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout_prayer)
+        // أما إذا كنت تستخدم ViewBinding كما هو واضح من الكود، استخدم هذا:
+        swipeRefreshLayout = binding.root as SwipeRefreshLayout
+
         prayerViewModel = ViewModelProvider(this)[PrayerHomeViewModel::class.java]
-        daysAdapter = PrayerAdapter(emptyList(), this, arabicLocale)
         locationHelper = LocationHelper(this)
+        daysAdapter = PrayerAdapter(emptyList(), this, Locale("ar"))
 
-        observeViewModel()
         initUI()
-        getDateToday()
+        observeViewModel()
+        setupClickListeners()
+        setupSwipeToRefresh() // *** استدعاء دالة الريفرش ***
         checkPermissionsAndFetchLocation()
+    }
 
-        binding.btnRight.setOnClickListener { getNextMonth() }
-        binding.btnLeft.setOnClickListener { getPrevMonth() }
-        binding.btnQibla.setOnClickListener {
-            startActivity(Intent(this, QiblaActivity::class.java))
+    private fun initUI() {
+        binding.recyclerDays.apply {
+            layoutManager = LinearLayoutManager(this@PrayerActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = daysAdapter
+        }
+    }
+
+    // *** دالة جديدة لإعداد الريفرش ***
+    private fun setupSwipeToRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            Toast.makeText(this, "جاري التحديث...", Toast.LENGTH_SHORT).show()
+            fetchLocationAndCalculateTimes()
         }
     }
 
     private fun observeViewModel() {
+        prayerViewModel.monthData.observe(this) { monthData ->
+            binding.progressBar.visibility = View.GONE
+            binding.prayersView.visibility = View.VISIBLE
+            swipeRefreshLayout.isRefreshing = false // *** إيقاف علامة الريفرش عند وصول البيانات ***
+            binding.month.text = monthData.name
+            daysAdapter.setData(monthData.days)
+
+            val selectedDay = monthData.days.find { it.isToday } ?: monthData.days.firstOrNull()
+            selectedDay?.let { onDayClick(it) }
+
+            val position = monthData.days.indexOfFirst { it.isToday }
+            if (position != -1) {
+                binding.recyclerDays.scrollToPosition(position)
+            }
+        }
+
         prayerViewModel.nextPrayer.observe(this) { nextPrayer ->
-            binding.nextPrayer.text = getString(R.string.next_prayer_format, getTranslatedPrayerName(nextPrayer))
-            updatePrayerHighlightBackground(nextPrayer)
+            // إزالة كلمة "صلاة " من النص ليتوافق مع دالة التظليل
+            val prayerNameOnly = nextPrayer.replace("صلاة ", "")
+            binding.nextPrayer.text = "الصلاة القادمة: $prayerNameOnly"
+            updatePrayerHighlight(prayerNameOnly)
         }
-        prayerViewModel.timeLeft.observe(this) { timeLeft ->
-            binding.remainingTime.text = getString(R.string.time_remaining_format, convertToEasternArabic(timeLeft))
+        prayerViewModel.timeLeft.observe(this) {
+            binding.remainingTime.text = it
         }
-        prayerViewModel.monthData.observe(this) { it?.let { loadMonthData(it.days) } }
-        prayerViewModel.prayerData.observe(this) { it?.let { if (it.status == "OK") prayerViewModel.mapData(it) } }
     }
 
-    private fun loadMonthData(days: List<Day>){
-        daysAdapter.setData(days)
-        binding.progressBar.visibility = View.GONE
-        binding.prayersView.visibility = View.VISIBLE
-        val tempCal = Calendar.getInstance().apply { set(Calendar.MONTH, month - 1) }
-        val monthName = SimpleDateFormat("MMMM", arabicLocale).format(tempCal.time)
-        binding.month.text = "$monthName ${convertToEasternArabic(year.toString())}"
-        val position = if (month == currentMonth && year == currentYear) currentDay - 1 else 0
-        binding.recyclerDays.scrollToPosition(position)
-        if (position < days.size) {
-            bindData(days[position].times)
-        }
+    private fun setupClickListeners() {
+        binding.btnQibla.setOnClickListener { startActivity(Intent(this, QiblaActivity::class.java)) }
+        binding.btnRight.setOnClickListener { changeMonth(1) }
+        binding.btnLeft.setOnClickListener { changeMonth(-1) }
+    }
+
+    private fun changeMonth(amount: Int) {
+        binding.prayersView.visibility = View.INVISIBLE
+        binding.progressBar.visibility = View.VISIBLE
+        calendar.add(Calendar.MONTH, amount)
+        calculateTimesForCurrentMonth()
     }
 
     private fun checkPermissionsAndFetchLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), PERMISSION_ID)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fetchLocationAndCalculateTimes()
         } else {
-            fetchLocationData()
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_ID)
         }
     }
 
-    private fun fetchLocationData() {
-        binding.progressBar.visibility = View.VISIBLE
+    private fun fetchLocationAndCalculateTimes() {
+        // إظهار ProgressBar فقط إذا لم يكن السحب للتحديث نشطًا
+        if (!swipeRefreshLayout.isRefreshing) {
+            binding.progressBar.visibility = View.VISIBLE
+        }
         locationHelper.requestSingleLocationUpdate(object : LocationResultListener {
             override fun onLocationResult(location: Location) {
-                visibleTheView()
-                mylat = location.latitude.toString()
-                myLong = location.longitude.toString()
-                prayerViewModel.getPrayerData(mylat, myLong, month.toString(), year.toString())
-                updateLocationText(location.latitude, location.longitude)
+                lastKnownLocation = location
+                calculateTimesForCurrentMonth()
+                updateLocationText(location)
             }
 
             override fun onLocationFailed(reason: String) {
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(this@PrayerActivity, "Failed to get location: $reason", Toast.LENGTH_LONG).show()
+                swipeRefreshLayout.isRefreshing = false // *** إيقاف الريفرش عند الفشل ***
+                Toast.makeText(this@PrayerActivity, "لم يتمكن من تحديد الموقع. يرجى تفعيل الـ GPS.", Toast.LENGTH_LONG).show()
             }
         })
+    }
+
+    private fun calculateTimesForCurrentMonth() {
+        lastKnownLocation?.let {
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH) + 1
+            prayerViewModel.getMonthlyPrayerData(year, month, it.latitude, it.longitude)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_ID && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            fetchLocationData()
+            fetchLocationAndCalculateTimes()
         } else {
-            Toast.makeText(this, "Permission denied. Location features are disabled.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "تم رفض صلاحية الموقع. لا يمكن حساب مواقيت الصلاة.", Toast.LENGTH_LONG).show()
             binding.progressBar.visibility = View.GONE
         }
-    }
-
-    private fun initUI() {
-        binding.recyclerDays.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = daysAdapter
-        }
-    }
-
-    private fun getDateToday() {
-        calendar.time = Date()
-        currentDay = calendar[Calendar.DAY_OF_MONTH]
-        currentMonth = calendar[Calendar.MONTH] + 1
-        currentYear = calendar[Calendar.YEAR]
-        day = currentDay
-        month = currentMonth
-        year = currentYear
-    }
-
-    private fun bindData(it: Timings) {
-        val inputFormat = SimpleDateFormat("HH:mm", Locale.US)
-        val outputFormat = SimpleDateFormat("hh:mm a", arabicLocale)
-        try {
-            binding.fajrTime.text = outputFormat.format(inputFormat.parse(it.Fajr.substring(0, 5)))
-            binding.dherTime.text = outputFormat.format(inputFormat.parse(it.Dhuhr.substring(0, 5)))
-            binding.asrTime.text = outputFormat.format(inputFormat.parse(it.Asr.substring(0, 5)))
-            binding.maghribTime.text = outputFormat.format(inputFormat.parse(it.Maghrib.substring(0, 5)))
-            binding.ishaTime.text = outputFormat.format(inputFormat.parse(it.Isha.substring(0, 5)))
-        } catch (e: Exception) {
-            // Fallback for safety
-        }
-    }
-
-    private fun getPrevMonth() {
-        calendar.set(year, month - 1, 1)
-        calendar.add(Calendar.MONTH, -1)
-        year = calendar.get(Calendar.YEAR)
-        month = calendar.get(Calendar.MONTH) + 1
-        prayerViewModel.getPrayerData(mylat, myLong, month.toString(), year.toString())
-    }
-
-    private fun getNextMonth() {
-        calendar.set(year, month - 1, 1)
-        calendar.add(Calendar.MONTH, 1)
-        year = calendar.get(Calendar.YEAR)
-        month = calendar.get(Calendar.MONTH) + 1
-        prayerViewModel.getPrayerData(mylat, myLong, month.toString(), year.toString())
-    }
-
-    private fun visibleTheView() {
-        binding.btnLeft.visibility = View.VISIBLE
-        binding.btnRight.visibility = View.VISIBLE
     }
 
     override fun onDayClick(item: Day) {
         bindData(item.times)
         daysAdapter.setSelectedDay(item)
+
+        if (item.isToday) {
+            // أعد طلب قيمة الصلاة القادمة للتأكد من تحديث التظليل
+            prayerViewModel.nextPrayer.value?.let {
+                val prayerNameOnly = it.replace("صلاة ", "")
+                updatePrayerHighlight(prayerNameOnly)
+            }
+        } else {
+            updatePrayerHighlight("")
+        }
     }
 
-    private fun updateLocationText(latitude: Double, longitude: Double) {
-        val geocoder = Geocoder(this, arabicLocale)
+    private fun bindData(times: PrayerTimingEntity) {
+        binding.fajrTime.text = times.fajr
+        binding.dherTime.text = times.dhuhr
+        binding.asrTime.text = times.asr
+        binding.maghribTime.text = times.maghrib
+        binding.ishaTime.text = times.isha
+    }
+
+    private fun updateLocationText(location: Location) {
+        val geocoder = Geocoder(this, Locale("ar"))
         try {
-            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
             if (addresses != null && addresses.isNotEmpty()) {
-                val city = addresses[0].locality ?: getString(R.string.unknown_city)
-                val country = addresses[0].countryName ?: getString(R.string.unknown_country)
-                binding.location.text = getString(R.string.location_format, city, country)
-            } else {
-                binding.location.text = getString(R.string.location_not_available)
+                val city = addresses[0].locality ?: "مكان غير معروف"
+                val country = addresses[0].countryName ?: ""
+                binding.location.text = "$city، $country"
             }
         } catch (e: Exception) {
-            binding.location.text = getString(R.string.error_fetching_location)
+            binding.location.text = "خطأ في تحديد الموقع"
         }
     }
 
-    private fun updatePrayerHighlightBackground(nextPrayerName: String) {
-        val defaultBg = R.color.background_main_neumorphic
-        val highlightBg = R.color.prayer_highlight_background
-        binding.fajrItemLayout.setBackgroundResource(if (nextPrayerName.equals("Fajr", true)) highlightBg else defaultBg)
-        binding.dhuhrItemLayout.setBackgroundResource(if (nextPrayerName.equals("Dhuhr", true)) highlightBg else defaultBg)
-        binding.asrItemLayout.setBackgroundResource(if (nextPrayerName.equals("Asr", true)) highlightBg else defaultBg)
-        binding.maghribItemLayout.setBackgroundResource(if (nextPrayerName.equals("Maghrib", true)) highlightBg else defaultBg)
-        binding.ishaItemLayout.setBackgroundResource(if (nextPrayerName.equals("Isha", true)) highlightBg else defaultBg)
-    }
+    private fun updatePrayerHighlight(nextPrayerName: String) {
+        // إعادة تعيين كل الخلفيات أولاً
+        binding.fajrItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
+        binding.dhuhrItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
+        binding.asrItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
+        binding.maghribItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
+        binding.ishaItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
 
-    private fun getTranslatedPrayerName(prayerName: String): String {
-        return when (prayerName.lowercase()) {
-            "fajr" -> getString(R.string.fajr)
-            "dhuhr" -> getString(R.string.Dhuhr)
-            "asr" -> getString(R.string.Asr)
-            "maghrib" -> getString(R.string.Maghrib)
-            "isha" -> getString(R.string.isha)
-            else -> prayerName
-        }
-    }
-
-    private fun convertToEasternArabic(numberString: String): String {
-        val arabicNumbers = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
-        val builder = StringBuilder()
-        for (char in numberString) {
-            if (char.isDigit()) {
-                builder.append(arabicNumbers[char.toString().toInt()])
-            } else {
-                builder.append(char)
+        // التظليل فقط إذا كان اليوم المحدد هو اليوم الحالي
+        if (daysAdapter.isCurrentDaySelectedToday()) {
+            val highlightBg = ContextCompat.getDrawable(this,R.drawable.today_day_background)
+            when (nextPrayerName) {
+                "الفجر" -> binding.fajrItemLayout.background = highlightBg
+                "الظهر" -> binding.dhuhrItemLayout.background = highlightBg
+                "العصر" -> binding.asrItemLayout.background = highlightBg
+                "المغرب" -> binding.maghribItemLayout.background = highlightBg
+                "العشاء" -> binding.ishaItemLayout.background = highlightBg
             }
         }
-        return builder.toString()
     }
 }

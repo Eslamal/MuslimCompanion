@@ -68,8 +68,8 @@ class MyLocation(var context :Context) {
     }
     private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            val mLastLocation: Location = locationResult.lastLocation
-            callback (mLastLocation.latitude.toString(),mLastLocation.longitude.toString())
+            val mLastLocation: Location? = locationResult.lastLocation
+            callback (mLastLocation!!.latitude.toString(),mLastLocation.longitude.toString())
 
         }
     }

@@ -1,222 +1,179 @@
 package com.example.islamic.viewmodel
 
-import android.util.Log
+import android.app.Application
+import android.os.Handler
+import android.os.Looper
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.islamic.api.RemoteDataSource
-import com.example.islamic.model.Data
+import com.batoulapps.adhan.CalculationMethod
+import com.batoulapps.adhan.Coordinates
+import com.batoulapps.adhan.Madhab
+import com.batoulapps.adhan.Prayer
+import com.batoulapps.adhan.PrayerTimes
+import com.batoulapps.adhan.data.DateComponents
 import com.example.islamic.model.Day
 import com.example.islamic.model.Month
-import com.example.islamic.model.PrayerData
-import com.example.islamic.model.Timings
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.islamic.model.PrayerTimingEntity
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
-class PrayerHomeViewModel  : ViewModel() {
+class PrayerHomeViewModel(application: Application) : AndroidViewModel(application) {
+
+    // LiveData
+    private val _monthData = MutableLiveData<Month>()
+    val monthData: LiveData<Month> get() = _monthData
+
     private val _nextPrayer = MutableLiveData<String>()
     val nextPrayer: LiveData<String> get() = _nextPrayer
 
     private val _timeLeft = MutableLiveData<String>()
     val timeLeft: LiveData<String> get() = _timeLeft
 
-    var prayerData = MutableLiveData<PrayerData?>()
-    var apiRepository: RemoteDataSource = RemoteDataSource()
-    var monthData = MutableLiveData<Month?>()
+    private val _prayerProgress = MutableLiveData<Int>()
+    val prayerProgress: LiveData<Int> get() = _prayerProgress
 
-    private val arabicLocale = Locale("ar", "EG")
+    // متغيرات لحفظ الحالة الحالية
+    private var currentPrayerTimes: PrayerTimes? = null
+    private var lastKnownCoordinates: Coordinates? = null
+    private var lastKnownParams: com.batoulapps.adhan.CalculationParameters? = null
 
-    val handler = CoroutineExceptionHandler { _, exception ->
-        Log.e("PrayerHomeViewModel", "CoroutineExceptionHandler caught: ${exception.message}", exception)
-        _nextPrayer.postValue("خطأ: تعذر جلب الصلوات")
-        _timeLeft.postValue(convertToEasternArabic("00:00"))
+    // عداد لايف
+    private val timerHandler = Handler(Looper.getMainLooper())
+    private lateinit var timeUpdater: Runnable
+
+    // دالة مخصصة للشاشة الرئيسية MainActivity
+    fun calculateAndStartLiveTimer(latitude: Double, longitude: Double) {
+        lastKnownCoordinates = Coordinates(latitude, longitude)
+        lastKnownParams = CalculationMethod.EGYPTIAN.parameters.apply { madhab = Madhab.SHAFI }
+
+        val calendar = Calendar.getInstance()
+        val dateComponents = DateComponents.from(calendar.time)
+        currentPrayerTimes = PrayerTimes(lastKnownCoordinates!!, dateComponents, lastKnownParams!!)
+        updateNextPrayerInfo()
     }
 
-    fun getPrayerData(lat:String,lang: String,month:String,year:String) {
-        CoroutineScope(Dispatchers.IO + handler).launch {
-            val response = apiRepository.getPrayerTimes(lat,lang,month,year)
-            prayerData.postValue(response)
+    // دالة مخصصة لشاشة PrayerActivity
+    fun getMonthlyPrayerData(year: Int, month: Int, latitude: Double, longitude: Double) {
+        val coordinates = Coordinates(latitude, longitude)
+        val params = CalculationMethod.EGYPTIAN.parameters.apply { madhab = Madhab.SHAFI }
 
-            if (response != null && response.allData.isNotEmpty()) {
-                calculateNextPrayer(response)
-            } else {
-                _nextPrayer.postValue("لا توجد بيانات صلاة")
-                _timeLeft.postValue(convertToEasternArabic("00:00"))
-            }
-        }
-    }
+        val daysInMonth = mutableListOf<Day>()
+        val calendar = Calendar.getInstance()
+        val today = calendar.get(Calendar.DAY_OF_MONTH)
+        val currentMonth = calendar.get(Calendar.MONTH) + 1
+        val currentYear = calendar.get(Calendar.YEAR)
 
-    fun mapData(data : PrayerData){
-        val days :MutableList<Day> = arrayListOf()
-        val currentCalendar = Calendar.getInstance()
+        calendar.set(year, month - 1, 1)
+        val numDaysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
-        val monthNumber = data.allData[0].date.gregorian.month.number
-        val yearValue = data.allData[0].date.gregorian.year
+        for (dayOfMonth in 1..numDaysInMonth) {
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            val dateComponents = DateComponents.from(calendar.time)
+            val prayerTimes = PrayerTimes(coordinates, dateComponents, params)
 
-        val monthNameEn = data.allData[0].date.gregorian.month.en
-        val location = data.allData[0].meta.timezone
-
-        val tempCalForMonth = Calendar.getInstance(arabicLocale)
-        tempCalForMonth.set(Calendar.MONTH, monthNumber - 1)
-        val arabicMonthName = SimpleDateFormat("MMMM", arabicLocale).format(tempCalForMonth.time)
-
-        val name = arabicMonthName +" "+ convertToEasternArabic(yearValue.toString())
-
-        for (item in data.allData){
-            val dayNum = item.date.gregorian.day
-            val monthNum = item.date.gregorian.month.number
-            val yearVal = item.date.gregorian.year
-            val dayOfWeekEn = item.date.gregorian.weekday.en
-
-            val timings = item.timings
-
-            val isToday = (dayNum == currentCalendar.get(Calendar.DAY_OF_MONTH) &&
-                    monthNum == currentCalendar.get(Calendar.MONTH) + 1 &&
-                    yearVal == currentCalendar.get(Calendar.YEAR))
-
-            days.add(Day(dayNum, monthNum, yearVal, dayOfWeekEn, timings, false, isToday))
-        }
-        monthData.postValue(Month(name ,location,days))
-    }
-
-    private fun calculateNextPrayer(prayerData: PrayerData?) {
-        prayerData?.let { data ->
-            val currentTime = Calendar.getInstance(arabicLocale)
-            currentTime.timeZone = TimeZone.getDefault()
-
-            val apiTimeZoneId = data.allData[0].meta.timezone
-            val apiTimeZone = TimeZone.getTimeZone(apiTimeZoneId)
-
-
-            val todayTimingsData = data.allData.find { prayerDayData ->
-                val day = prayerDayData.date.gregorian.day
-                val month = prayerDayData.date.gregorian.month.number
-                val year = prayerDayData.date.gregorian.year
-
-                day == currentTime.get(Calendar.DAY_OF_MONTH) &&
-                        month == currentTime.get(Calendar.MONTH) + 1 &&
-                        year == currentTime.get(Calendar.YEAR)
-            }
-
-
-            val tomorrowTimingsData = data.allData.find { prayerDayData ->
-                val tomorrowCalendar = Calendar.getInstance()
-                tomorrowCalendar.add(Calendar.DAY_OF_MONTH, 1)
-
-                val day = prayerDayData.date.gregorian.day
-                val month = prayerDayData.date.gregorian.month.number
-                val year = prayerDayData.date.gregorian.year
-
-                day == tomorrowCalendar.get(Calendar.DAY_OF_MONTH) &&
-                        month == tomorrowCalendar.get(Calendar.MONTH) + 1 &&
-                        year == tomorrowCalendar.get(Calendar.YEAR)
-            }
-
-            val prayerNamesMap = mapOf(
-                "Fajr" to "الفجر",
-                "Dhuhr" to "الظهر",
-                "Asr" to "العصر",
-                "Maghrib" to "المغرب",
-                "Isha" to "العشاء"
+            val formatter = SimpleDateFormat("hh:mm a", Locale("ar"))
+            val timingEntity = PrayerTimingEntity(
+                date = "$dayOfMonth-$month-$year",
+                fajr = formatter.format(prayerTimes.fajr),
+                sunrise = formatter.format(prayerTimes.sunrise),
+                dhuhr = formatter.format(prayerTimes.dhuhr),
+                asr = formatter.format(prayerTimes.asr),
+                maghrib = formatter.format(prayerTimes.maghrib),
+                isha = formatter.format(prayerTimes.isha)
             )
-            val prayerKeys = listOf("Fajr", "Dhuhr", "Asr", "Maghrib", "Isha")
 
+            val dayOfWeekEn = SimpleDateFormat("EEEE", Locale.US).format(calendar.time)
+            val isTodayFlag = (dayOfMonth == today && month == currentMonth && year == currentYear)
 
-            val inputFormat = SimpleDateFormat("HH:mm", Locale.US)
-            inputFormat.timeZone = apiTimeZone
+            daysInMonth.add(Day(dayOfMonth, dayOfWeekEn, timingEntity, isTodayFlag))
 
-
-            if (todayTimingsData != null) {
-                for (key in prayerKeys) {
-                    val prayerTimeString = when (key) {
-                        "Fajr" -> todayTimingsData.timings.Fajr
-                        "Dhuhr" -> todayTimingsData.timings.Dhuhr
-                        "Asr" -> todayTimingsData.timings.Asr
-                        "Maghrib" -> todayTimingsData.timings.Maghrib
-                        "Isha" -> todayTimingsData.timings.Isha
-                        else -> continue
-                    }
-
-                    try {
-                        val prayerTimeDate = inputFormat.parse(prayerTimeString)
-                        if (prayerTimeDate != null) {
-                            val prayerCalendar = Calendar.getInstance(arabicLocale)
-                            prayerCalendar.time = prayerTimeDate
-                            prayerCalendar.set(Calendar.YEAR, currentTime.get(Calendar.YEAR))
-                            prayerCalendar.set(Calendar.MONTH, currentTime.get(Calendar.MONTH))
-                            prayerCalendar.set(Calendar.DAY_OF_MONTH, currentTime.get(Calendar.DAY_OF_MONTH))
-
-                            if (prayerCalendar.after(currentTime)) {
-                                val nextPrayerTranslatedName = prayerNamesMap[key] ?: key
-                                val timeLeftFormatted = calculateTimeLeft(prayerCalendar.time)
-
-                                _nextPrayer.postValue(nextPrayerTranslatedName)
-                                _timeLeft.postValue(timeLeftFormatted)
-                                return
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Log.e("PrayerHomeViewModel", "Error parsing prayer time for $key ($prayerTimeString): ${e.message}", e)
-                    }
-                }
+            // *** بداية التعديل: إذا كان اليوم هو اليوم الحالي، قم بتشغيل العداد ***
+            if (isTodayFlag) {
+                this.currentPrayerTimes = prayerTimes
+                updateNextPrayerInfo()
             }
-
-            if (tomorrowTimingsData != null) {
-                val fajrTomorrowTime = tomorrowTimingsData.timings.Fajr
-                try {
-                    val prayerTimeDate = inputFormat.parse(fajrTomorrowTime)
-                    if (prayerTimeDate != null) {
-                        val prayerCalendar = Calendar.getInstance(arabicLocale)
-                        prayerCalendar.time = prayerTimeDate
-
-                        val tomorrowDate = Calendar.getInstance()
-                        tomorrowDate.add(Calendar.DAY_OF_MONTH, 1)
-                        prayerCalendar.set(Calendar.YEAR, tomorrowDate.get(Calendar.YEAR))
-                        prayerCalendar.set(Calendar.MONTH, tomorrowDate.get(Calendar.MONTH))
-                        prayerCalendar.set(Calendar.DAY_OF_MONTH, tomorrowDate.get(Calendar.DAY_OF_MONTH))
-
-                        val nextPrayerTranslatedName = prayerNamesMap["Fajr"] ?: "الفجر"
-                        val timeLeftFormatted = calculateTimeLeft(prayerCalendar.time)
-
-                        _nextPrayer.postValue(nextPrayerTranslatedName)
-                        _timeLeft.postValue(timeLeftFormatted)
-                        return
-                    }
-                } catch (e: Exception) {
-                    Log.e("PrayerHomeViewModel", "Error parsing Fajr time for tomorrow ($fajrTomorrowTime): ${e.message}", e)
-                }
-            }
-
-
-            _nextPrayer.postValue("لا توجد صلوات متاحة")
-            _timeLeft.postValue(convertToEasternArabic("00:00"))
-
-        } ?: run {
-            _nextPrayer.postValue("خطأ في جلب بيانات الصلاة")
-            _timeLeft.postValue(convertToEasternArabic("00:00"))
+            // *** نهاية التعديل ***
         }
+
+        val arabicMonthName = SimpleDateFormat("MMMM yyyy", Locale("ar")).format(calendar.time)
+        _monthData.postValue(Month(arabicMonthName, daysInMonth))
     }
 
+    private fun updateNextPrayerInfo() {
+        timerHandler.removeCallbacksAndMessages(null)
+        startLiveTimer()
+    }
 
-    private fun calculateTimeLeft(prayerTime: Date): String {
-        val currentTime = Calendar.getInstance(arabicLocale).time
-        val timeDiff = prayerTime.time - currentTime.time
+    private fun startLiveTimer() {
+        timeUpdater = object : Runnable {
+            override fun run() {
+                val prayerTimes = currentPrayerTimes ?: return
 
-        if (timeDiff <= 0) {
-            return convertToEasternArabic("00:00")
+                var nextPrayerEnum = prayerTimes.nextPrayer()
+                var nextPrayerTime = prayerTimes.timeForPrayer(nextPrayerEnum)
+                var currentPrayerTime = prayerTimes.timeForPrayer(prayerTimes.currentPrayer())
+
+                if (nextPrayerEnum == Prayer.NONE) {
+                    val tomorrowCalendar = Calendar.getInstance()
+                    tomorrowCalendar.add(Calendar.DAY_OF_YEAR, 1)
+                    val tomorrowDate = DateComponents.from(tomorrowCalendar.time)
+                    val tomorrowPrayerTimes = PrayerTimes(lastKnownCoordinates!!, tomorrowDate, lastKnownParams!!)
+                    nextPrayerTime = tomorrowPrayerTimes.fajr
+                    nextPrayerEnum = Prayer.FAJR
+                    currentPrayerTime = prayerTimes.isha
+                }
+
+                val prayerNamesMap = mapOf(
+                    Prayer.FAJR to "الفجر",
+                    Prayer.SUNRISE to "الشروق",
+                    Prayer.DHUHR to "الظهر",
+                    Prayer.ASR to "العصر",
+                    Prayer.MAGHRIB to "المغرب",
+                    Prayer.ISHA to "العشاء"
+                )
+                val nextPrayerName = "صلاة ${prayerNamesMap[nextPrayerEnum] ?: "غير معروف"}"
+
+                if (_nextPrayer.value != nextPrayerName) {
+                    _nextPrayer.postValue(nextPrayerName)
+                }
+
+                val timeDiff = nextPrayerTime.time - System.currentTimeMillis()
+
+                if (timeDiff <= 0) {
+                    _timeLeft.postValue("حان الآن")
+                    _prayerProgress.postValue(100)
+                    timerHandler.postDelayed({ calculateAndStartLiveTimer(lastKnownCoordinates!!.latitude, lastKnownCoordinates!!.longitude) }, 2000)
+                    return
+                }
+
+                val hours = TimeUnit.MILLISECONDS.toHours(timeDiff)
+                val minutes = TimeUnit.MILLISECONDS.toMinutes(timeDiff) % 60
+                val seconds = TimeUnit.MILLISECONDS.toSeconds(timeDiff) % 60
+                val timeLeftFormatted = String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, seconds)
+                _timeLeft.postValue("يتبقى ${convertToEasternArabic(timeLeftFormatted)}")
+
+                if (currentPrayerTime != null) {
+                    val totalTimeForPrayer = nextPrayerTime.time - currentPrayerTime.time
+                    val timePassed = System.currentTimeMillis() - currentPrayerTime.time
+                    if (totalTimeForPrayer > 0) {
+                        val progress = ((timePassed.toDouble() / totalTimeForPrayer.toDouble()) * 100).toInt()
+                        _prayerProgress.postValue(progress.coerceIn(0, 100))
+                    }
+                } else {
+                    _prayerProgress.postValue(0)
+                }
+
+                timerHandler.postDelayed(this, 1000)
+            }
         }
+        timerHandler.post(timeUpdater)
+    }
 
-        val totalSeconds = timeDiff / 1000
-        val hoursLeft = totalSeconds / (60 * 60)
-        val minutesLeft = (totalSeconds % (60 * 60)) / 60
-
-        val formattedTime = String.format("%02d:%02d", hoursLeft, minutesLeft)
-        return convertToEasternArabic(formattedTime)
+    override fun onCleared() {
+        super.onCleared()
+        timerHandler.removeCallbacksAndMessages(null)
     }
 
     private fun convertToEasternArabic(numberString: String): String {
@@ -224,7 +181,7 @@ class PrayerHomeViewModel  : ViewModel() {
         val builder = StringBuilder()
         for (char in numberString) {
             if (char.isDigit()) {
-                builder.append(arabicNumbers[char.toString().toInt()])
+                builder.append(arabicNumbers[Character.getNumericValue(char)])
             } else {
                 builder.append(char)
             }
