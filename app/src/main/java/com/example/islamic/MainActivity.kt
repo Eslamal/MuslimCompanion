@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -99,13 +98,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupMainMenu() {
         val menuItems = listOf(
             MainMenuItem("القرآن", R.drawable.quran, Surah::class.java),
-            MainMenuItem("التفسير", R.drawable.quran, TafseerSurahActivity::class.java),
-            MainMenuItem("الأذكار", R.drawable.azkar, Azkar::class.java),
-            MainMenuItem("الأحاديث", R.drawable.hadith, HadithListActivity::class.java),
-            MainMenuItem("الأدعية", R.drawable.hadith, DuaActivity::class.java),
-            MainMenuItem("المسبحة", R.drawable.azkar, TasbeehActivity::class.java),
+            MainMenuItem("التفسير", R.drawable.tafseer, TafseerSurahActivity::class.java),
+            MainMenuItem("الأذكار", R.drawable.prophet, Azkar::class.java),
+            MainMenuItem("الأحاديث", R.drawable.prophet, HadithListActivity::class.java),
+            MainMenuItem("الأدعية", R.drawable.doaa, DuaActivity::class.java),
+            MainMenuItem("المسبحة", R.drawable.beads, TasbeehActivity::class.java),
             MainMenuItem("المواقيت", R.drawable.prayer, PrayerActivity::class.java),
-            MainMenuItem("القبلة", R.drawable.dial, QiblaActivity::class.java)
+            MainMenuItem("القبلة", R.drawable.qibla, QiblaActivity::class.java)
         )
         mainMenuRv.adapter = MainMenuAdapter(menuItems)
     }
