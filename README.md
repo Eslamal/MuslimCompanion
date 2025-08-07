@@ -2,32 +2,33 @@
 
 An open-source, all-in-one Islamic Android application designed to be the daily companion for every Muslim. The app provides a suite of tools and features to help users perform their daily worship with ease, featuring a modern, flexible, and interactive user interface.
 
-## ✨ Core Features
+## ✨ Key Features
 
-- **Smart Dashboard:**
-  - Displays accurate **Prayer Times** based on the user's location.
-  - A **live countdown** for the time remaining until the next prayer.
-  - Shows both Hijri and Gregorian dates.
-  - **Renewable Daily Content:** A new Hadith, Aya (Verse), and Dua are randomly displayed every day.
+-   📖 **Full Holy Quran:**
+    -   Crystal-clear Uthmanic Hafs font.
+    -   **Reading Modes:** Switch between Light, Sepia (for eye comfort), and Dark themes.
+    -   **Bookmarks:** Save your reading position to return to it later.
 
-- **The Holy Quran:**
-  - Read all Surahs of the Holy Quran with a clean interface.
-  - A dedicated section for the Tafseer (interpretation) of each Surah.
+-   🕌 **Accurate Prayer Times:**
+    -   Calculates prayer times precisely based on your location.
+    -   Works completely **offline** after the initial location setup.
 
-- **Hadith & Supplications:**
-  - A complete library of Prophetic Hadiths with explanations.
-  - "Hisn Al-Muslim" section for categorized daily Duas (supplications).
-  - Morning (Sabah), Evening (Massa), and after-prayer Azkar.
+-   🧭 **Qibla Compass:**
+    -   A simple and accurate compass to find the direction of the Kaaba.
 
-- **Additional Tools:**
-  - **Qibla Direction** compass using the device's sensors.
-  - A smart electronic **Tasbeeh (Rosary)** that saves your counts.
-  - **Swipe to Refresh** functionality to manually update all data.
+-   📿 **Azkar & Duas:**
+    -   A comprehensive collection of Azkar (morning, evening, after-prayer).
+    -   A curated list of essential Duas (supplications) for various occasions.
 
-- **Full Customization:**
-  - Full support for both **Arabic and English** with automatic Right-to-Left (RTL) / Left-to-Right (LTR) layout switching.
-  - Ability to switch between **Light and Dark Mode**.
-  - User's selected language and theme preferences are saved and applied on every launch.
+-   📜 **Hadith Collection:**
+    -   A browsable collection of authentic Hadith.
+
+-   🔢 **Digital Tasbeeh:**
+    -   A simple counter to help you keep track of your dhikr.
+
+-   **Core Principle: 100% Offline Functionality**
+    -   All content (Quran, Hadith, Azkar) is bundled within the app. Prayer times are calculated locally. No internet required for core features.
+
     
 
 ## 🛠️ Tech Stack
