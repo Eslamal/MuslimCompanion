@@ -1,62 +1,43 @@
-About The Project
+# 🕋 Muslim Companion 
 
-The "Muslim Companion" project aims to provide a comprehensive, reliable, and user-friendly mobile application. The app is built to be a daily companion for Muslims, combining essential functionalities like Quran reading, prayer times, and Azkar in one place. It makes most of its content available offline to ensure accessibility anytime, anywhere.
+An open-source, all-in-one Islamic Android application designed to be the daily companion for every Muslim. The app provides a suite of tools and features to help users perform their daily worship with ease, featuring a modern, flexible, and interactive user interface.
 
-✨ Key Features
-📖 Holy Quran (Offline)
+## ✨ Core Features
 
-Full Surah index for easy navigation.
+- **Smart Dashboard:**
+  - Displays accurate **Prayer Times** based on the user's location.
+  - A **live countdown** for the time remaining until the next prayer.
+  - Shows both Hijri and Gregorian dates.
+  - **Renewable Daily Content:** A new Hadith, Aya (Verse), and Dua are randomly displayed every day.
 
-Clear, high-quality Quranic text using a custom Uthmanic font.
+- **The Holy Quran:**
+  - Read all Surahs of the Holy Quran with a clean interface.
+  - A dedicated section for the Tafseer (interpretation) of each Surah.
 
-Dark mode support for a comfortable reading experience at night.
+- **Hadith & Supplications:**
+  - A complete library of Prophetic Hadiths with explanations.
+  - "Hisn Al-Muslim" section for categorized daily Duas (supplications).
+  - Morning (Sabah), Evening (Massa), and after-prayer Azkar.
 
-📿 Azkar & Tasbeeh (Offline)
+- **Additional Tools:**
+  - **Qibla Direction** compass using the device's sensors.
+  - A smart electronic **Tasbeeh (Rosary)** that saves your counts.
+  - **Swipe to Refresh** functionality to manually update all data.
 
-Morning, Evening, and Post-Prayer remembrances.
+- **Full Customization:**
+  - Full support for both **Arabic and English** with automatic Right-to-Left (RTL) / Left-to-Right (LTR) layout switching.
+  - Ability to switch between **Light and Dark Mode**.
+  - User's selected language and theme preferences are saved and applied on every launch.
+    
 
-Repetition counter for each Zikr to help you keep track.
+## 🛠️ Tech Stack
 
-📚 Hadith (Offline)
-
-A library of Hadith from authentic sources (Bukhari, Muslim, etc.).
-
-🕌 Prayer Times & Adhan
-
-Accurate prayer time calculations based on your location.
-
-Notification for the upcoming prayer and the time remaining.
-
-Monthly calendar view for prayer timings.
-
-🧭 Qibla Direction
-
-An accurate compass to determine the Qibla direction using device sensors.
-
-
-Tech Stack & Architecture
-The app is built using modern, Google-recommended best practices to ensure high performance and a maintainable codebase.
-
-Programming Languages: Kotlin (primary) and Java.
-
-Architecture: MVVM (Model-View-ViewModel).
-
-Jetpack Libraries:
-
-ViewModel: To manage UI-related data in a lifecycle-conscious way.
-
-LiveData: For building observable, data-driven UIs.
-
-RecyclerView: For displaying large lists efficiently.
-
-ViewBinding: For safer interaction between code and XML layouts.
-
-Asynchronous Programming: Kotlin Coroutines for managing background tasks smoothly.
-
-Networking: Retrofit & OkHttp for fetching data from the internet (e.g., prayer times).
-
-Data Source:
-
-Local JSON Files: For storing Quran, Hadith, and Azkar data (works offline).
-
-Remote API: For fetching dynamic data (e.g., prayer times from api.aladhan.com).
+- **Languages:** Kotlin & Java.
+- **Architecture:** MVVM (Model-View-ViewModel).
+- **UI:** Android XML, `ConstraintLayout`, `RecyclerView`, `CardView`, `SwipeRefreshLayout`.
+- **Jetpack Libraries:**
+  - `ViewModel`: To manage UI-related data in a lifecycle-conscious way.
+  - `LiveData`: To observe data changes and automatically update the UI.
+- **Other Libraries:**
+  - **Adhan for Android:** For accurate prayer time calculations.
+  - **Google Play Services (Location):** To determine the user's location.
