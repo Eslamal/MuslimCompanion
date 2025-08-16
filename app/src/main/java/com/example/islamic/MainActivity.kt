@@ -2,8 +2,12 @@ package com.example.islamic
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -21,11 +25,9 @@ import com.example.islamic.view.*
 import com.example.islamic.viewmodel.PrayerHomeViewModel
 import org.json.JSONArray
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 import android.icu.util.Calendar
 import android.icu.util.ULocale
-import android.location.Location
-import android.view.View
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,7 +48,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvDailyAya: TextView
     private lateinit var tvDailyDua: TextView
 
-    // متغيرات لتخزين المحتوى اليومي الكامل
     private var fullDailyHadith: String? = null
     private var fullDailyAya: String? = null
     private var fullDailyDua: String? = null
@@ -73,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         tvDailyAya = findViewById(R.id.tv_daily_aya)
         tvDailyDua = findViewById(R.id.tv_daily_dua)
 
-        // تهيئة ViewModel و LocationHelper
         prayerViewModel = ViewModelProvider(this)[PrayerHomeViewModel::class.java]
         locationHelper = LocationHelper(this)
 
@@ -89,11 +89,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupSwipeToRefresh() {
         swipeRefreshLayout.setOnRefreshListener {
             Toast.makeText(this, "جاري التحديث...", Toast.LENGTH_SHORT).show()
-            fetchLocation()
+            fetchLocation() // استدعاء الدالة الجديدة عند السحب
             setupDailyContent()
         }
     }
-
 
     private fun setupMainMenu() {
         val menuItems = listOf(
@@ -132,24 +131,64 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // --- بداية التعديلات لحل مشكلة التأخير ---
+
+    /**
+     * الدالة الرئيسية الجديدة لجلب الموقع.
+     * تطبق استراتيجية التحميل السريع: عرض البيانات بالموقع القديم، ثم تحديثها بالموقع الجديد.
+     */
     private fun fetchLocation() {
         swipeRefreshLayout.isRefreshing = true
-        locationHelper.requestSingleLocationUpdate(object : LocationResultListener {
-            override fun onLocationResult(location: Location) {
-                // *** بداية التعديل: استدعاء الدالة بالاسم الجديد ***
+
+        // الخطوة 1: حاول جلب آخر موقع معروف فوراً
+        locationHelper.getLastKnownLocation { location ->
+            if (location != null) {
+                // إذا وجدنا موقعاً محفوظاً، اعرض المواقيت فوراً باستخدامه
                 prayerViewModel.calculateAndStartLiveTimer(
                     location.latitude,
                     location.longitude
                 )
-                // *** نهاية التعديل ***
             }
+
+            // الخطوة 2: في كل الحالات، اطلب تحديثاً جديداً ودقيقاً في الخلفية
+            requestFreshLocation()
+        }
+    }
+
+    /**
+     * دالة مساعدة لطلب موقع جديد ودقيق في الخلفية وتحديث الواجهة عند وصوله.
+     */
+    private fun requestFreshLocation() {
+        locationHelper.requestSingleLocationUpdate(object : LocationResultListener {
+            override fun onLocationResult(location: Location) {
+                // عند وصول الموقع الجديد والدقيق، قم بتحديث الواجهة مرة أخرى
+                prayerViewModel.calculateAndStartLiveTimer(
+                    location.latitude,
+                    location.longitude
+                )
+            }
+
             override fun onLocationFailed(reason: String) {
-                swipeRefreshLayout.isRefreshing = false
+                // إذا فشلت كل المحاولات (القديمة والجديدة)، أبلغ المستخدم
+                // التحقق إذا لم يتم عرض أي شيء بعد لتجنب إظهار رسالة خطأ غير ضرورية
+                if (tvNextPrayer.text.isNullOrEmpty() || tvNextPrayer.text == "فشل تحديد الموقع") {
+                    tvNextPrayer.text = "فشل تحديد الموقع"
+                    tvTimeLeft.text = "يرجى تفعيل الـ GPS."
+                }
                 Toast.makeText(this@MainActivity, "فشل تحديد الموقع. يرجى تفعيل الـ GPS.", Toast.LENGTH_LONG).show()
-                tvNextPrayer.text = "فشل تحديد الموقع"
             }
         })
+
+        // أوقف علامة التحديث بعد فترة قصيرة لأن العملية الآن تتم في الخلفية
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (swipeRefreshLayout.isRefreshing) {
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }, 2000)
     }
+
+    // --- نهاية التعديلات ---
+
 
     private fun setupHijriDate() {
         val locale = ULocale("ar@calendar=islamic-civil")
@@ -171,7 +210,14 @@ class MainActivity : AppCompatActivity() {
             if (hadithArray.length() > 0) {
                 val randomHadith = hadithArray.getJSONObject((0 until hadithArray.length()).random())
                 fullDailyHadith = randomHadith.getString("hadith")
-                dailyHadithText.text = fullDailyHadith
+                var hadithBody = fullDailyHadith 
+
+                if (fullDailyHadith != null && fullDailyHadith!!.contains(":")) {
+
+                    hadithBody = fullDailyHadith!!.substringAfter(":").trim()
+                }
+
+                dailyHadithText.text = hadithBody
             }
 
             val quranInputStream = assets.open("QuranDetails.json")
@@ -210,13 +256,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         dailyHadithCard.setOnClickListener {
-            showContentDialog("حديث اليوم", fullDailyHadith)
+            showContentDialog("حديث ", fullDailyHadith)
         }
         dailyAyaCard.setOnClickListener {
-            showContentDialog("آية اليوم", fullDailyAya)
+            showContentDialog("آية ", fullDailyAya)
         }
         dailyDuaCard.setOnClickListener {
-            showContentDialog("دعاء اليوم", fullDailyDua)
+            showContentDialog("دعاء ", fullDailyDua)
         }
     }
 

@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,7 +24,6 @@ import com.example.islamic.databinding.ActivityPrayerBinding
 import com.example.islamic.model.Day
 import com.example.islamic.model.PrayerTimingEntity
 import com.example.islamic.viewmodel.PrayerHomeViewModel
-import java.text.SimpleDateFormat
 import java.util.*
 
 class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
@@ -33,8 +34,6 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
     private lateinit var daysAdapter: PrayerAdapter
     private val calendar = Calendar.getInstance()
     private var lastKnownLocation: Location? = null
-
-    // *** تعريف متغير الريفرش ***
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     companion object {
@@ -44,15 +43,9 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPrayerBinding.inflate(layoutInflater)
-        // **ملاحظة:** تأكد من أن layout الخاص بك هو activity_prayer.xml
-        // وإذا كنت تستخدم ViewBinding، لا تحتاج لـ findViewById. إذا لم تكن تستخدمه، تجاهل هذه الملاحظة.
         setContentView(binding.root)
         supportActionBar?.hide()
 
-        // *** ربط متغير الريفرش بالواجهة ***
-        // إذا كنت لا تستخدم ViewBinding، استخدم هذا السطر:
-        // swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout_prayer)
-        // أما إذا كنت تستخدم ViewBinding كما هو واضح من الكود، استخدم هذا:
         swipeRefreshLayout = binding.root as SwipeRefreshLayout
 
         prayerViewModel = ViewModelProvider(this)[PrayerHomeViewModel::class.java]
@@ -62,7 +55,7 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
         initUI()
         observeViewModel()
         setupClickListeners()
-        setupSwipeToRefresh() // *** استدعاء دالة الريفرش ***
+        setupSwipeToRefresh()
         checkPermissionsAndFetchLocation()
     }
 
@@ -73,7 +66,6 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
         }
     }
 
-    // *** دالة جديدة لإعداد الريفرش ***
     private fun setupSwipeToRefresh() {
         swipeRefreshLayout.setOnRefreshListener {
             Toast.makeText(this, "جاري التحديث...", Toast.LENGTH_SHORT).show()
@@ -85,7 +77,7 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
         prayerViewModel.monthData.observe(this) { monthData ->
             binding.progressBar.visibility = View.GONE
             binding.prayersView.visibility = View.VISIBLE
-            swipeRefreshLayout.isRefreshing = false // *** إيقاف علامة الريفرش عند وصول البيانات ***
+            swipeRefreshLayout.isRefreshing = false
             binding.month.text = monthData.name
             daysAdapter.setData(monthData.days)
 
@@ -99,7 +91,6 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
         }
 
         prayerViewModel.nextPrayer.observe(this) { nextPrayer ->
-            // إزالة كلمة "صلاة " من النص ليتوافق مع دالة التظليل
             val prayerNameOnly = nextPrayer.replace("صلاة ", "")
             binding.nextPrayer.text = "الصلاة القادمة: $prayerNameOnly"
             updatePrayerHighlight(prayerNameOnly)
@@ -130,25 +121,53 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
         }
     }
 
+    // --- بداية التعديلات لحل مشكلة التأخير ---
+
+    /**
+     * الدالة الرئيسية الجديدة التي تطبق استراتيجية التحميل السريع.
+     */
     private fun fetchLocationAndCalculateTimes() {
-        // إظهار ProgressBar فقط إذا لم يكن السحب للتحديث نشطًا
         if (!swipeRefreshLayout.isRefreshing) {
             binding.progressBar.visibility = View.VISIBLE
         }
+
+        // الخطوة 1: جلب آخر موقع معروف فوراً
+        locationHelper.getLastKnownLocation { location ->
+            if (location != null) {
+                // إذا وجدنا موقعاً، احفظه وابدأ الحساب فوراً
+                lastKnownLocation = location
+                calculateTimesForCurrentMonth()
+                updateLocationText(location)
+            }
+            // الخطوة 2: اطلب تحديثاً جديداً في الخلفية في كل الحالات
+            requestFreshLocation()
+        }
+    }
+
+    /**
+     * دالة مساعدة لطلب موقع جديد ودقيق في الخلفية.
+     */
+    private fun requestFreshLocation() {
         locationHelper.requestSingleLocationUpdate(object : LocationResultListener {
             override fun onLocationResult(location: Location) {
+                // عند وصول الموقع الجديد، قم بتحديث الواجهة مرة أخرى
                 lastKnownLocation = location
                 calculateTimesForCurrentMonth()
                 updateLocationText(location)
             }
 
             override fun onLocationFailed(reason: String) {
-                binding.progressBar.visibility = View.GONE
-                swipeRefreshLayout.isRefreshing = false // *** إيقاف الريفرش عند الفشل ***
-                Toast.makeText(this@PrayerActivity, "لم يتمكن من تحديد الموقع. يرجى تفعيل الـ GPS.", Toast.LENGTH_LONG).show()
+                swipeRefreshLayout.isRefreshing = false
+                // أظهر رسالة الخطأ فقط إذا لم يتم عرض أي بيانات بعد
+                if (binding.prayersView.visibility != View.VISIBLE) {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(this@PrayerActivity, "لم يتمكن من تحديد الموقع. يرجى تفعيل الـ GPS.", Toast.LENGTH_LONG).show()
+                }
             }
         })
     }
+
+    // --- نهاية التعديلات ---
 
     private fun calculateTimesForCurrentMonth() {
         lastKnownLocation?.let {
@@ -173,7 +192,6 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
         daysAdapter.setSelectedDay(item)
 
         if (item.isToday) {
-            // أعد طلب قيمة الصلاة القادمة للتأكد من تحديث التظليل
             prayerViewModel.nextPrayer.value?.let {
                 val prayerNameOnly = it.replace("صلاة ", "")
                 updatePrayerHighlight(prayerNameOnly)
@@ -206,14 +224,12 @@ class PrayerActivity : AppCompatActivity(), PrayerAdapter.OnClickDayListener {
     }
 
     private fun updatePrayerHighlight(nextPrayerName: String) {
-        // إعادة تعيين كل الخلفيات أولاً
         binding.fajrItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
         binding.dhuhrItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
         binding.asrItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
         binding.maghribItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
         binding.ishaItemLayout.background = ContextCompat.getDrawable(this, R.drawable.prayer_item_neumorphic_background)
 
-        // التظليل فقط إذا كان اليوم المحدد هو اليوم الحالي
         if (daysAdapter.isCurrentDaySelectedToday()) {
             val highlightBg = ContextCompat.getDrawable(this,R.drawable.today_day_background)
             when (nextPrayerName) {

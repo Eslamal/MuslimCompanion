@@ -63,7 +63,6 @@ public class DuaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return items.size();
     }
 
-    // ViewHolder للدعاء
     static class DuaViewHolder extends RecyclerView.ViewHolder {
         TextView duaTitle, duaText;
         DuaViewHolder(@NonNull View itemView) {
@@ -73,7 +72,6 @@ public class DuaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    // ViewHolder لعنوان الفئة
     static class CategoryViewHolder extends RecyclerView.ViewHolder {
         TextView categoryTitle;
         CategoryViewHolder(@NonNull View itemView) {

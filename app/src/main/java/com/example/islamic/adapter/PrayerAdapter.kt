@@ -52,28 +52,27 @@ class PrayerAdapter(
 
             val context = itemView.context
 
-            // *** بداية المنطق الجديد لتمييز الخلفية ***
             when {
-                // إذا كان اليوم هو اليوم المحدد
+
                 day == selectedDay -> {
                     binding.clCalendarItem.setBackgroundResource(R.drawable.today_item_background)
                     binding.date.setTextColor(ContextCompat.getColor(context, R.color.green_quran))
                     binding.day.setTextColor(ContextCompat.getColor(context, R.color.green_quran))
                 }
-                // إذا كان اليوم هو اليوم الحالي (وليس المحدد)
+
                 day.isToday -> {
                     binding.clCalendarItem.setBackgroundResource(R.drawable.today_day_background)
                     binding.date.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
                     binding.day.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
                 }
-                // أي يوم آخر
+
                 else -> {
                     binding.clCalendarItem.setBackgroundResource(R.drawable.neumorphic_card_background)
                     binding.date.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
                     binding.day.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
                 }
             }
-            // *** نهاية المنطق الجديد ***
+
 
             itemView.setOnClickListener {
                 listener.onDayClick(day)
@@ -85,7 +84,7 @@ class PrayerAdapter(
         fun onDayClick(item: Day)
     }
 
-    // ... باقي الدوال المساعدة تبقى كما هي ...
+
     private fun getArabicDayName(dayOfWeekEn: String): String {
         return when (dayOfWeekEn.lowercase(Locale.US)) {
             "saturday" -> "السبت"
