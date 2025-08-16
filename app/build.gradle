@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.islamic'
+    namespace 'com.eslamdev.islamic'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.islamic"
+        applicationId "com.eslamdev.islamic"
         minSdk 24
         targetSdk 34
         versionCode 1
