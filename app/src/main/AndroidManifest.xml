@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- Your original permissions -->
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <!--
-     FIX #1: Explicitly state that GPS is NOT required.
-     This tells the Amazon Appstore that devices without a GPS chip (like many Fire Tablets)
-     can still run your app. Your app should handle cases where fine location is not available.
-    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <uses-feature
         android:name="android.hardware.location.gps"
         android:required="false" />
     <uses-feature
         android:name="android.hardware.location"
         android:required="false" />
-    <!--
-     FIX #2: Explicitly state that a camera is NOT required.
-     This is important if your QiblaActivity uses the camera. This ensures your app
-     can be installed on devices without a camera, like Fire TV.
-    -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -38,97 +35,67 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Islamic"
         tools:targetApi="31">
+
         <activity
-            android:name=".view.TasbeehActivity"
-            android:exported="false" />
+            android:name=".presentation.ui.activity.SplashScreen"
+            android:exported="true"
+            android:theme="@style/Theme.App.Splash"> <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
         <activity
-            android:name=".view.DuaActivity"
+            android:name=".presentation.ui.activity.MainActivity"
             android:exported="false" />
 
         <activity
-            android:name=".SplashScreen"
-            android:exported="true">
+            android:name=".presentation.ui.activity.PrayerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.QiblaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".presentation.ui.activity.Azkar"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.AzkarDetailsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".presentation.ui.activity.SurahListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.SurahDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.TafseerDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".presentation.ui.activity.HadithListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.HadithDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".presentation.ui.activity.DuaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.TasbeehActivity"
+            android:exported="false" />
+
+        <receiver
+            android:name=".core.PrayerReceiver"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" /> <!-- NOTE: These empty meta-data tags are not necessary, but they are harmless. -->
-        <activity
-            android:name=".view.Azkar_After"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.Azkar_Massa"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.Azkar_Sabah"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.Azkar"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.SurahDetail"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.Surah"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.TafseerSurahActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.TafseerDetailActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.HadithListActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".view.HadithDetailActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity android:name=".view.QiblaActivity" />
-        <activity android:name=".view.PrayerActivity" />
+        </receiver>
+
     </application>
 
 </manifest>

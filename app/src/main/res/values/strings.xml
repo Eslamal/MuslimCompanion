@@ -1,53 +1,63 @@
 <resources>
     <string name="app_name">Islamic</string>
+    <string name="today">اليوم</string>
+    <string name="settings">الإعدادات</string>
 
+    <string name="button_quran">القرآن الكريم</string>
+    <string name="button_tafseer">التفسير الميسر</string>
+    <string name="button_athkar">الأذكار</string>
+    <string name="button_hadith">الأحاديث</string>
+    <string name="button_dua">الأدعية</string>
+    <string name="button_tasbeeh">المسبحة</string>
+    <string name="button_prayer">مواقيت الصلاة</string>
+    <string name="button_qibla">القبلة</string>
 
-    <string name="button_quran">Quran</string>
-    <string name="button_athkar">Azkar</string>
-    <string name="button_tafseer">Tafseer</string>
-    <string name="azkar_alsabah"> الصباح</string>
-    <string name="azkar_almasaa"> المساء</string>
-    <string name="azkar_afterPraying">بعد الصلاة</string>
-    <string name="repeat">Repeat</string>
-    <string name="repeat_count_format">مرات التكرار: %1$s</string>
-
+    <string name="azkar_sabaah">أذكار الصباح</string>
+    <string name="azkar_massa">أذكار المساء</string>
+    <string name="azkar_afterPraying">أذكار بعد الصلاة</string>
+    <string name="repeat_count_format">التكرار: %1$s</string>
+    <string name="azkar_title">حصن المسلم</string>
 
     <string name="next_prayer_format">الصلاة القادمة: %1$s</string>
-    <string name="time_remaining_format">الوقت المتبقي: %1$s</string>
+    <string name="time_remaining_format">باقي من الوقت: %1$s</string>
     <string name="fajr">الفجر</string>
+    <string name="sunrise">الشروق</string>
     <string name="Dhuhr">الظهر</string>
     <string name="Asr">العصر</string>
     <string name="Maghrib">المغرب</string>
     <string name="isha">العشاء</string>
-    <string name="unknown_city">مدينة غير معروفة</string>
-    <string name="unknown_country">دولة غير معروفة</string>
     <string name="location_format">%1$s، %2$s</string>
-    <string name="location_not_available">الموقع غير متاح</string>
-    <string name="error_fetching_location">خطأ في جلب الموقع</string>
-    <string name="location_permission_needed">صلاحية الموقع مطلوبة لعرض أوقات الصلاة</string>
-    <string name="today">اليوم</string>
+    <string name="unknown_city">جاري تحديد الموقع...</string>
 
-    <string name="allow">You have to allow us to know your location to can see prayer times</string>
-    <string name="get_location">Get My Location</string>
-    <string name="prayer_app">Prayer App</string>
-    <string name="gps_settings_title">GPS settings</string>
-    <string name="gps_settings_text">GPS is not enabled. Do you want to go to settings menu?</string>
-    <string name="settings_button_ok">Settings</string>
-    <string name="settings_button_cancel">Cancel</string>
-    <string name="msg_permission_not_granted_yet">اضغط للحصول على الموقع   </string>
-    <string name="msg_permission_granted">Location Access Granted, press GPS button now.</string>
-    <string name="toast_permission_required">This app requires Access Location</string>
-    <string name="your_location">    %f,%f    </string>
-    <string name="show_location">(%f,%f)</string>
-    <string name="location_not_ready">Location not ready, please press button again.</string>
-    <string name="qibla_direction">اتجاه القبلة : %f من درجة من الشمال</string>
-    <string name="pls_enable_location">Please turn on Location and press the button again.</string>
-    <string name="degree_from_north">degrees from the north.</string>
-    <string name="using_last_location">using last location.</string>
+    <string name="allow_location">يجب تفعيل الموقع لعرض المواقيت والقبلة</string>
+    <string name="permission_required">التطبيق يحتاج لصلاحية الموقع</string>
+    <string name="gps_disabled">الـ GPS غير مفعل</string>
+    <string name="enable_gps">تفعيل GPS</string>
+    <string name="cancel">إلغاء</string>
+    <string name="toast_permission_required">يرجى الموافقة على صلاحية الموقع</string>
+    <string name="location_not_ready">جاري جلب الموقع، يرجى الانتظار...</string>
+    <string name="error_fetching_location">فشل تحديد الموقع، تأكد من اتصالك</string>
 
+    <string name="subhan_allah">سبحان الله</string>
+    <string name="alhamdulillah">الحمد لله</string>
+    <string name="allahu_akbar">الله أكبر</string>
+    <string name="astaghfirullah">أستغفر الله</string>
+    <string name="reset">تصفير</string>
+    <string name="reset_all">تصفير الكل</string>
 
-    <string name="getting_location">جاري تحديد موقعك…</string>
-    <string name="location_fetch_failed">فشل تحديد الموقع</string>
+    <string name="hadith_title">الأحاديث النبوية</string>
+    <string name="dua_title">جوامع الدعاء</string>
+    <string name="share">مشاركة</string>
+    <string name="copy">نسخ</string>
 
+    <string name="getting_location">جاري تحديد الموقع...</string>
+    <string name="qibla_direction">اتجاه القبلة: %s</string>
+    <string name="your_location">موقعك الحالي: %s</string>
+    <string name="location_fetch_failed">فشل في تحديد الموقع</string>
 
+    <string name="msg_permission_not_granted_yet">يجب الموافقة على صلاحية الموقع لعمل التطبيق</string>
+    <string name="gps_settings_title">تفعيل الموقع</string>
+    <string name="gps_settings_text">الـ GPS غير مفعل، هل تريد الذهاب للإعدادات لتفعيله؟</string>
+    <string name="settings_button_ok">الإعدادات</string>
+    <string name="settings_button_cancel">إلغاء</string>
 </resources>

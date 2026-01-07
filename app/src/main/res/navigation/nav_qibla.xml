@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/compassFragment"
-        android:name="com.eslamdev.islamic.qibla.CompassFragment"
+        android:name="com.eslamdev.islamic.presentation.ui.fragment.CompassFragment"
         android:label="CompassFragment"
         tools:layout="@layout/fragment_compass" />
 
