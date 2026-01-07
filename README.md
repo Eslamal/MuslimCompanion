@@ -83,19 +83,11 @@ This project is built using **Native Android (Kotlin)**, following the **Clean A
 
 Here is a visual tour of the application features (Light & Dark Mode):
 
-
+| | | | | |
 |:---:|:---:|:---:|:---:|:---:|
 | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-51.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-54.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-56.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-57.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-58.jpg" width="160"/> |
-
-
-|:---:|:---:|:---:|:---:|:---:|
 | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-59.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-00.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-02.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-03.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-04.jpg" width="160"/> |
-
-
-|:---:|:---:|:---:|:---:|:---:|
 | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-05.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-07.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-08.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-09.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-10.jpg" width="160"/> |
- | | |
-|:---:|:---:|:---:|:---:|:---:|
 | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-11.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-52-08.jpg" width="160"/> | | | |
 
 ---
