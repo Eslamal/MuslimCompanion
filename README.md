@@ -83,21 +83,12 @@ This project is built using **Native Android (Kotlin)**, following the **Clean A
 
 Here is a visual tour of the application features (Light & Dark Mode):
 
-| Splash Screen | Home (Light) | Home (Dark) | Drawer/Menu | Qibla Compass |
+| | | | | |
 |:---:|:---:|:---:|:---:|:---:|
-| <img src="screenshots/1.png" width="160"/> | <img src="screenshots/2.png" width="160"/> | <img src="screenshots/3.png" width="160"/> | <img src="screenshots/4.png" width="160"/> | <img src="screenshots/5.png" width="160"/> |
-
-| Quran List | Surah Detail | Quran (Dark) | Azkar Home | Morning Azkar |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="screenshots/6.png" width="160"/> | <img src="screenshots/7.png" width="160"/> | <img src="screenshots/8.png" width="160"/> | <img src="screenshots/9.png" width="160"/> | <img src="screenshots/10.png" width="160"/> |
-
-| Prayer Times | Settings (Sound) | Settings (Loc) | Location (Manual) | Permission Req |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="screenshots/11.png" width="160"/> | <img src="screenshots/12.png" width="160"/> | <img src="screenshots/13.png" width="160"/> | <img src="screenshots/14.png" width="160"/> | <img src="screenshots/15.png" width="160"/> |
-
-| Notification | Widget (Optional) | | | |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="screenshots/16.png" width="160"/> | <img src="screenshots/17.png" width="160"/> | | | |
+| <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-51.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-54.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-56.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-57.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-58.jpg" width="160"/> |
+| <img src="app/IslamicAppScreens/photo_2026-01-08_00-50-59.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-00.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-02.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-03.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-04.jpg" width="160"/> |
+| <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-05.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-07.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-08.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-09.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-10.jpg" width="160"/> |
+| <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-11.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-52-08.jpg" width="160"/> | | | |
 
 ---
 
