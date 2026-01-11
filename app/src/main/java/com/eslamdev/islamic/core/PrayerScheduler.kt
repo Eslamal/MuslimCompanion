@@ -22,7 +22,6 @@ object PrayerScheduler {
         val lat = prefs.getFloat("LATITUDE", 30.0444f).toDouble()
         val lon = prefs.getFloat("LONGITUDE", 31.2357f).toDouble()
 
-        // إعدادات الحساب (نفس اللي في Repository)
         val params = CalculationMethod.EGYPTIAN.parameters
         params.madhab = if (prefs.getInt("MADHAB_INDEX", 0) == 1) Madhab.HANAFI else Madhab.SHAFI
 
@@ -30,11 +29,9 @@ object PrayerScheduler {
         val now = Date()
         val dateComponents = DateComponents.from(now)
 
-        // حساب مواقيت اليوم
         var prayerTimes = PrayerTimes(coordinates, dateComponents, params)
         var nextPrayer = prayerTimes.nextPrayer()
 
-        // لو صلوات اليوم خلصت (بعد العشاء)، نحسب لأول صلاة بكرة (الفجر)
         if (nextPrayer == Prayer.NONE) {
             val tomorrow = Calendar.getInstance()
             tomorrow.add(Calendar.DAY_OF_YEAR, 1)
@@ -46,7 +43,6 @@ object PrayerScheduler {
         val nextPrayerTime = prayerTimes.timeForPrayer(nextPrayer) ?: return
         val prayerName = getArabicName(nextPrayer)
 
-        // جدولة المنبه
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, PrayerReceiver::class.java).apply {
             putExtra("PRAYER_NAME", prayerName)
@@ -56,14 +52,12 @@ object PrayerScheduler {
             context, 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // إلغاء أي منبه قديم وجدولة الجديد
         alarmManager.cancel(pendingIntent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (alarmManager.canScheduleExactAlarms()) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextPrayerTime.time, pendingIntent)
             } else {
-                // ممكن تطلب من المستخدم يدي صلاحية المنبهات الدقيقة هنا
                 alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextPrayerTime.time, pendingIntent)
             }
         } else {

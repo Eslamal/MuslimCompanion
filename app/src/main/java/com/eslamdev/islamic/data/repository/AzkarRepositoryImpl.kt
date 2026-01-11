@@ -13,7 +13,6 @@ import java.io.InputStreamReader
 class AzkarRepositoryImpl(private val context: Context) : IAzkarRepository {
 
     override suspend fun getAzkar(type: AzkarType): List<ZekrModel> {
-        // بنستخدم withContext(Dispatchers.IO) عشان العملية دي تاخد وقت ومتهنجش الواجهة
         return withContext(Dispatchers.IO) {
             val zekrList = mutableListOf<ZekrModel>()
             try {
@@ -33,13 +32,12 @@ class AzkarRepositoryImpl(private val context: Context) : IAzkarRepository {
                     val data = jsonArray.getJSONObject(i)
                     val zekrText = data.getString("zekr")
                     val repeat = data.getInt("repeat")
-                    // بنضيف الذكر للقائمة كمودل كامل
                     zekrList.add(ZekrModel(id = i, zekr = zekrText, repeat = repeat))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            zekrList // بيرجع القائمة في الآخر
+            zekrList
         }
     }
 }

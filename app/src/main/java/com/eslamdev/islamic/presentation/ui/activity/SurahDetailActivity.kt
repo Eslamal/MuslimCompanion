@@ -44,7 +44,7 @@ class SurahDetailActivity : AppCompatActivity() {
         quranWebView.settings.javaScriptEnabled = false
         quranWebView.settings.defaultTextEncodingName = "utf-8"
         quranWebView.layoutDirection = android.view.View.LAYOUT_DIRECTION_RTL
-        // جعل خلفية الويب فيو شفافة عشان متعملش ومضة بيضاء قبل التحميل
+
         quranWebView.setBackgroundColor(0)
     }
 
@@ -58,15 +58,15 @@ class SurahDetailActivity : AppCompatActivity() {
     }
 
     private fun generateHtmlContent(targetIndex: Int): String {
-        // 1. الكشف عن الوضع الليلي
+
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val isDarkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES
 
-        // 2. تحديد الألوان بناءً على الوضع
-        val bgColor = if (isDarkMode) "#121212" else "#FFFBF2" // أسود رمادي للداكن / كريمي للفاتح
-        val textColor = if (isDarkMode) "#E0E0E0" else "#000000" // أبيض للداكن / أسود للفاتح
-        val borderColor = "#D4AF37" // ذهبي (يمشي مع الاتنين)
-        val verseNumColor = if (isDarkMode) "#80CBC4" else "#006D5B" // أخضر فاتح للداكن / غامق للفاتح
+
+        val bgColor = if (isDarkMode) "#121212" else "#FFFBF2"
+        val textColor = if (isDarkMode) "#E0E0E0" else "#000000"
+        val borderColor = "#D4AF37"
+        val verseNumColor = if (isDarkMode) "#80CBC4" else "#006D5B"
 
         val htmlBuilder = StringBuilder()
         htmlBuilder.append("<!DOCTYPE html>")
@@ -77,8 +77,8 @@ class SurahDetailActivity : AppCompatActivity() {
             .append("@font-face { font-family: 'Uthmanic'; src: url('file:///android_asset/me_quran.ttf'); }")
 
             .append("body {")
-            .append("   background-color: $bgColor;") // استخدام اللون المتغير
-            .append("   color: $textColor;")         // استخدام اللون المتغير
+            .append("   background-color: $bgColor;")
+            .append("   color: $textColor;")
             .append("   margin: 0; padding: 10px;")
             .append("   font-family: 'Uthmanic', 'Amiri', serif;")
             .append("   text-align: justify;")
@@ -104,7 +104,7 @@ class SurahDetailActivity : AppCompatActivity() {
             .append("}")
 
             .append(".aya-container { display: inline; }")
-            .append(".aya-text { font-size: 22px; color: $textColor; }") // تأكدنا أن النص يأخذ لون المتغير
+            .append(".aya-text { font-size: 22px; color: $textColor; }")
 
             .append(".aya-symbol-container {")
             .append("   display: inline-block;")

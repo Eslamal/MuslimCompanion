@@ -22,7 +22,6 @@ class DuaRepository(private val context: Context) {
                     val catObj = categoriesArray.getJSONObject(i)
                     val catTitle = catObj.getString("category")
 
-                    // إضافة العنوان (Header)
                     fullList.add(DuaCategory(catTitle))
 
                     val duasArray = catObj.getJSONArray("duas")
@@ -31,7 +30,6 @@ class DuaRepository(private val context: Context) {
                         val title = duaObj.getString("title")
                         val content = duaObj.getString("dua")
 
-                        // إضافة الدعاء (Item)
                         fullList.add(DuaItem(title, content, catTitle))
                     }
                 }

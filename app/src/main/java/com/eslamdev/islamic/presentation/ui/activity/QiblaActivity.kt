@@ -38,7 +38,6 @@ class QiblaActivity : AppCompatActivity(), SensorEventListener {
     private var currentDegree = 0f
     private var qiblaAngle = 0f
 
-    // مصفوفات القراءات
     private var lastAccelerometer = FloatArray(3)
     private var lastMagnetometer = FloatArray(3)
     private var lastAccelerometerSet = false
@@ -47,9 +46,6 @@ class QiblaActivity : AppCompatActivity(), SensorEventListener {
     private var isQiblaAligned = false
     private var lastToastTime: Long = 0
 
-    // ### التعديل الجوهري هنا ###
-    // غيرنا القيمة لـ 0.05f (بدل 0.97f)
-    // ده معناه: خد 5% بس من القراءة الجديدة، وحافظ على 95% من استقرار القديمة
     private val ALPHA = 0.05f
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,7 +109,6 @@ class QiblaActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
-        // استخدمنا SENSOR_DELAY_UI (أبطأ قليلاً وأكثر ثباتاً من GAME)
         sensorAccelerometer?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
         sensorMagnetometer?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
     }
@@ -123,11 +118,9 @@ class QiblaActivity : AppCompatActivity(), SensorEventListener {
         sensorManager.unregisterListener(this)
     }
 
-    // دالة الفلتر المعدلة
     private fun lowPass(input: FloatArray, output: FloatArray?): FloatArray {
         if (output == null) return input
         for (i in input.indices) {
-            // المعادلة: القيمة الجديدة = القديمة + نسبة صغيرة من الفرق
             output[i] = output[i] + ALPHA * (input[i] - output[i])
         }
         return output
@@ -152,12 +145,12 @@ class QiblaActivity : AppCompatActivity(), SensorEventListener {
                 val azimuthInRadians = orientation[0]
                 val degree = (Math.toDegrees(azimuthInRadians.toDouble()) + 360).toFloat() % 360
 
-                // ### منع التحديث لو التغيير بسيط جداً (أقل من درجة) لزيادة الثبات ###
+
                 if (abs(currentDegree - (-degree)) < 1.0) return
 
                 tvDegree.text = "${degree.toInt()}° N"
 
-                // معالجة اللفة الكاملة (عشان ميلفش العكس لما يعدي الشمال)
+
                 var targetDegree = -degree
                 if (currentDegree - targetDegree > 180) {
                     targetDegree += 360
@@ -165,18 +158,18 @@ class QiblaActivity : AppCompatActivity(), SensorEventListener {
                     targetDegree -= 360
                 }
 
-                // تدوير القرص
+
                 val rotateDial = RotateAnimation(
                     currentDegree,
                     targetDegree,
                     Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF, 0.5f
                 )
-                rotateDial.duration = 200 // وقت مناسب مع SENSOR_DELAY_UI
+                rotateDial.duration = 200
                 rotateDial.fillAfter = true
                 imageDial.startAnimation(rotateDial)
 
-                // تدوير سهم القبلة
+
                 val rotatePointer = RotateAnimation(
                     currentDegree + qiblaAngle,
                     targetDegree + qiblaAngle,

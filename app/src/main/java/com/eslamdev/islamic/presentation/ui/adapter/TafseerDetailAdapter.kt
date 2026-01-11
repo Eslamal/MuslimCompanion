@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.data.model.TafseerAya
-import com.eslamdev.islamic.databinding.TafseerItemLayoutBinding // تأكد من اسم ملف الـ XML
+import com.eslamdev.islamic.databinding.TafseerItemLayoutBinding
 
 class TafseerDetailAdapter : ListAdapter<TafseerAya, TafseerDetailAdapter.ViewHolder>(DiffCallback) {
 

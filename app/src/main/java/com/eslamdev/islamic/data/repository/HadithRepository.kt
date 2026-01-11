@@ -24,7 +24,6 @@ class HadithRepository(private val context: Context) {
                     val fullText = obj.getString("hadith")
                     val description = obj.optString("description", "")
 
-                    // فصل العنوان عن النص (تحسين المنطق)
                     val parts = fullText.split("\n\n", limit = 2)
                     val title = if (parts.isNotEmpty()) parts[0] else "حديث ${i + 1}"
                     val content = if (parts.size > 1) parts[1] else fullText

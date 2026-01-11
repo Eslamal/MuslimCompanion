@@ -11,18 +11,15 @@ import com.eslamdev.islamic.data.local.PrayerTimingDao
 import java.text.SimpleDateFormat
 import java.util.*
 
-// أضفنا context في الـ Constructor عشان نقرأ الـ SharedPreferences
 class PrayerRepository(
     private val prayerTimingDao: PrayerTimingDao,
     private val context: Context
 ) {
 
-    // دالة مساعدة لقراءة الإعدادات
     private fun getCalculationParameters(): com.batoulapps.adhan.CalculationParameters {
         val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
 
-        // قراءة طريقة الحساب (الافتراضي: مصر)
-        val methodIndex = prefs.getInt("CALC_METHOD_INDEX", 4) // 4 = EGYPTIAN
+        val methodIndex = prefs.getInt("CALC_METHOD_INDEX", 4)
         val method = when(methodIndex) {
             0 -> CalculationMethod.MUSLIM_WORLD_LEAGUE
             1 -> CalculationMethod.KARACHI
@@ -35,18 +32,16 @@ class PrayerRepository(
 
         val params = method.parameters
 
-        // قراءة المذهب (الافتراضي: شافعي/جمهور)
-        val madhabIndex = prefs.getInt("MADHAB_INDEX", 0) // 0 = SHAFI, 1 = HANAFI
+        val madhabIndex = prefs.getInt("MADHAB_INDEX", 0)
         params.madhab = if (madhabIndex == 1) Madhab.HANAFI else Madhab.SHAFI
 
         return params
     }
 
-    // دالة الحساب لليوم الحالي (للشاشة الرئيسية)
     fun calculateAndGetPrayerTimes(latitude: Double, longitude: Double): PrayerTimingEntity {
         val coordinates = Coordinates(latitude, longitude)
         val date = DateComponents.from(Date())
-        val params = getCalculationParameters() // استخدام الإعدادات الديناميكية
+        val params = getCalculationParameters()
 
         val prayerTimes = PrayerTimes(coordinates, date, params)
         val formatter = SimpleDateFormat("hh:mm a", Locale("ar"))
@@ -62,7 +57,7 @@ class PrayerRepository(
         )
     }
 
-    // دالة الحساب للشهر (لشاشة المواقيت)
+
     fun getPrayerTimingsForMonth(month: Int, year: Int, latitude: Double, longitude: Double): List<PrayerTimingEntity> {
         val list = mutableListOf<PrayerTimingEntity>()
         val calendar = Calendar.getInstance()
@@ -70,7 +65,7 @@ class PrayerRepository(
         calendar.set(Calendar.MONTH, month - 1)
 
         val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        val params = getCalculationParameters() // استخدام الإعدادات الديناميكية
+        val params = getCalculationParameters()
 
         for (day in 1..daysInMonth) {
             calendar.set(Calendar.DAY_OF_MONTH, day)
@@ -92,20 +87,19 @@ class PrayerRepository(
         return list
     }
 
-    // دالة لجلب اسم المدينة (أونلاين، ولو فشل يرجع إحداثيات)
+
     fun getCityName(lat: Double, lon: Double): String {
         return try {
             val geocoder = Geocoder(context, Locale("ar"))
             val addresses = geocoder.getFromLocation(lat, lon, 1)
             if (!addresses.isNullOrEmpty()) {
-                val city = addresses[0].locality // المدينة
-                val adminArea = addresses[0].adminArea // المحافظة
+                val city = addresses[0].locality
+                val adminArea = addresses[0].adminArea
                 "$city، $adminArea"
             } else {
                 "موقع غير معروف"
             }
         } catch (e: Exception) {
-            // في حالة الأوفلاين التام
             "خط العرض: ${String.format("%.2f", lat)}"
         }
     }

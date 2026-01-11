@@ -43,11 +43,9 @@ class PrayerActivity : AppCompatActivity() {
 
     private var currentCalendar = Calendar.getInstance()
 
-    // أسماء المؤذنين وملفات الصوت المقابلة
     private val adhanNames = arrayOf("أذان مكة المكرمة", "أذان القاهرة (عبد الباسط)", "أذان المدينة المنورة")
     private val adhanResIds = arrayOf(R.raw.adhan_mecca, R.raw.adhan_cairo, R.raw.adhan_medina)
 
-    // متغير لتشغيل الصوت للمعانية
     private var previewMediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +77,6 @@ class PrayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // تنظيف الذاكرة لو خرجنا من الصفحة والصوت شغال
         previewMediaPlayer?.release()
         previewMediaPlayer = null
     }
@@ -128,7 +125,6 @@ class PrayerActivity : AppCompatActivity() {
         loadPrayerTimesForDay(selectedDay)
     }
 
-    // ### 1. تعديل دالة تحديد الصلاة القادمة ###
     private fun getNextPrayerIndex(timing: PrayerTimingEntity): Int {
         val sdf = SimpleDateFormat("hh:mm a", Locale("ar"))
         val now = Calendar.getInstance()
@@ -144,13 +140,11 @@ class PrayerActivity : AppCompatActivity() {
                 prayerCal.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
 
                 if (prayerCal.after(now)) {
-                    return i // دي الصلاة اللي لسه جاية في نفس اليوم
+                    return i
                 }
             } catch (e: Exception) { continue }
         }
 
-        // لو اللوب خلصت ومفيش صلاة قادمة "اليوم"، ده معناه إننا بعد العشاء
-        // فالصلاة القادمة هي الفجر (index 0)
         return 0
     }
 
@@ -166,7 +160,6 @@ class PrayerActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
 
-        // قسم التنبيهات
         val labelAdhan = TextView(this)
         labelAdhan.text = "تنبيهات الأذان:"
         labelAdhan.setTextColor(Color.parseColor("#006D5B"))
@@ -198,15 +191,13 @@ class PrayerActivity : AppCompatActivity() {
         soundLayout.visibility = if (switchEnableAdhan.isChecked) View.VISIBLE else View.GONE
         switchEnableAdhan.setOnCheckedChangeListener { _, isChecked ->
             soundLayout.visibility = if (isChecked) View.VISIBLE else View.GONE
-            // إيقاف الصوت لو المستخدم قفل التنبيهات وهو شغال
             if (!isChecked) {
                 previewMediaPlayer?.release()
                 previewMediaPlayer = null
             }
         }
 
-        // ### 2. تشغيل الصوت عند الاختيار ###
-        var isInitialSelection = true // عشان الصوت ميشتغلش أول ما تفتح القائمة
+        var isInitialSelection = true
         spinnerSound.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (isInitialSelection) {
@@ -214,9 +205,8 @@ class PrayerActivity : AppCompatActivity() {
                     return
                 }
 
-                // تشغيل المعاينة
                 try {
-                    previewMediaPlayer?.release() // وقف القديم
+                    previewMediaPlayer?.release()
 
                     val selectedResId = if (position in adhanResIds.indices) adhanResIds[position] else adhanResIds[0]
                     previewMediaPlayer = MediaPlayer.create(this@PrayerActivity, selectedResId)
@@ -234,7 +224,6 @@ class PrayerActivity : AppCompatActivity() {
         divider.setPadding(0, 20, 0, 20)
         layout.addView(divider)
 
-        // قسم الموقع
         val labelLocationSection = TextView(this)
         labelLocationSection.text = "\nالموقع والحساب:"
         labelLocationSection.setTextColor(Color.parseColor("#006D5B"))
@@ -317,7 +306,6 @@ class PrayerActivity : AppCompatActivity() {
         spinnerMadhab.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, madhabs)
         layout.addView(spinnerMadhab)
 
-        // تحميل القيم
         spinnerSound.setSelection(prefs.getInt("ADHAN_SOUND_INDEX", 0))
         spinnerMethod.setSelection(prefs.getInt("CALC_METHOD_INDEX", 4))
         spinnerMadhab.setSelection(prefs.getInt("MADHAB_INDEX", 0))
@@ -336,7 +324,6 @@ class PrayerActivity : AppCompatActivity() {
         builder.setView(scrollView)
 
         builder.setPositiveButton("حفظ") { _, _ ->
-            // إيقاف الصوت عند الحفظ
             previewMediaPlayer?.release()
             previewMediaPlayer = null
 
@@ -363,13 +350,13 @@ class PrayerActivity : AppCompatActivity() {
         }
 
         builder.setNegativeButton("إلغاء") { dialog, _ ->
-            // إيقاف الصوت عند الإلغاء
+
             previewMediaPlayer?.release()
             previewMediaPlayer = null
             dialog.dismiss()
         }
 
-        // لو ضغط خارج الدايلوج ليغلقه
+
         builder.setOnDismissListener {
             previewMediaPlayer?.release()
             previewMediaPlayer = null

@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.R
 import com.eslamdev.islamic.data.model.MainMenuItem
 
-// التعديل هنا: أضفنا (val onItemClick: (MainMenuItem) -> Unit)
 class MainMenuAdapter(
     private val items: List<MainMenuItem>,
     private val onItemClick: (MainMenuItem) -> Unit
@@ -31,7 +30,6 @@ class MainMenuAdapter(
         holder.title.text = item.title
         holder.icon.setImageResource(item.iconRes)
 
-        // تفعيل الضغط
         holder.itemView.setOnClickListener {
             onItemClick(item)
         }

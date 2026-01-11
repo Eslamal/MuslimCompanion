@@ -28,7 +28,6 @@ class AzkarAdapter : ListAdapter<ZekrModel, AzkarAdapter.ZekrViewHolder>(ZekrDif
 
         fun bind(item: ZekrModel) {
             zekrText.text = item.zekr
-            // تحويل الأرقام للعربية المشرقية
             val formattedCount = convertToEasternArabic(item.repeat.toString())
             repeatCount.text = itemView.context.getString(R.string.repeat_count_format, formattedCount)
         }

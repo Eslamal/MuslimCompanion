@@ -28,11 +28,9 @@ import java.util.concurrent.TimeUnit
 
 class PrayerHomeViewModel(private val repository: PrayerRepository) : ViewModel() {
 
-    // 1. حالة البيانات الأساسية (أيام الشهر)
     private val _prayerState = MutableStateFlow<PrayerState>(PrayerState.Idle)
     val prayerState: StateFlow<PrayerState> = _prayerState
 
-    // 2. بيانات العداد
     private val _nextPrayer = MutableStateFlow("")
     val nextPrayer: StateFlow<String> = _nextPrayer
 
@@ -45,22 +43,18 @@ class PrayerHomeViewModel(private val repository: PrayerRepository) : ViewModel(
     private var timerJob: Job? = null
     private var currentPrayerTimes: PrayerTimes? = null
 
-    // متغيرات لحفظ الإحداثيات عشان نحسب بكرة لو احتجنا
     private var savedCoordinates: Coordinates? = null
     private var savedParams: CalculationParameters? = null
 
-    // الدالة الرئيسية لجلب البيانات
     fun getMonthlyPrayerData(year: Int, month: Int, latitude: Double, longitude: Double) {
         viewModelScope.launch {
             _prayerState.value = PrayerState.Loading
             try {
-                // حفظ الإعدادات لاستخدامها في العداد
                 savedCoordinates = Coordinates(latitude, longitude)
                 val params = CalculationMethod.EGYPTIAN.parameters
                 params.madhab = Madhab.SHAFI
                 savedParams = params
 
-                // 1. حساب مواقيت الشهر بالكامل
                 val daysList = mutableListOf<Day>()
                 val calendar = Calendar.getInstance()
                 val monthFormatter = SimpleDateFormat("MMMM yyyy", Locale("ar"))
@@ -74,14 +68,12 @@ class PrayerHomeViewModel(private val repository: PrayerRepository) : ViewModel(
                     val dateComponents = DateComponents(year, month, day)
                     val prayerTimes = PrayerTimes(savedCoordinates, dateComponents, params)
 
-                    // حفظ مواقيت اليوم الحالي عشان العداد
                     val today = Calendar.getInstance()
                     if (day == today.get(Calendar.DAY_OF_MONTH) && month == (today.get(Calendar.MONTH) + 1)) {
                         currentPrayerTimes = prayerTimes
-                        startTimer() // تشغيل العداد
+                        startTimer()
                     }
 
-                    // تحويل البيانات لـ Entity وتخزينها
                     val timingEntity = PrayerTimingEntity(
                         date = "$day-$month-$year",
                         fajr = formatTime(prayerTimes.fajr),
@@ -104,7 +96,6 @@ class PrayerHomeViewModel(private val repository: PrayerRepository) : ViewModel(
         }
     }
 
-    // دالة العداد
     private fun startTimer() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
@@ -120,22 +111,18 @@ class PrayerHomeViewModel(private val repository: PrayerRepository) : ViewModel(
         var nextPrayerType = prayerTimes.nextPrayer()
         var nextPrayerTime = prayerTimes.timeForPrayer(nextPrayerType)
 
-        // المتغيرات لحساب البروجرس بار
         var currentPrayerTimeForProgress: Date? = prayerTimes.timeForPrayer(prayerTimes.currentPrayer())
 
-        // ### التصحيح الجوهري: لو الوقت بعد العشاء، احسب فجر بكرة ###
         if (nextPrayerType == Prayer.NONE || nextPrayerTime == null) {
             val tomorrow = Calendar.getInstance()
             tomorrow.add(Calendar.DAY_OF_YEAR, 1)
             val tomorrowDate = DateComponents.from(tomorrow.time)
 
-            // استخدام الإحداثيات المحفوظة لحساب بكرة
             if (savedCoordinates != null && savedParams != null) {
                 val tomorrowPrayerTimes = PrayerTimes(savedCoordinates, tomorrowDate, savedParams)
                 nextPrayerTime = tomorrowPrayerTimes.fajr
                 nextPrayerType = Prayer.FAJR
 
-                // عشان البروجرس بار يظبط، "الصلاة الحالية" تعتبر هي العشاء بتاعة النهاردة
                 currentPrayerTimeForProgress = prayerTimes.isha
             }
         }
@@ -145,19 +132,15 @@ class PrayerHomeViewModel(private val repository: PrayerRepository) : ViewModel(
             val diff = nextPrayerTime.time - now
 
             if (diff > 0) {
-                // تنسيق الوقت المتبقي
                 val hours = TimeUnit.MILLISECONDS.toHours(diff)
                 val minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60
                 val seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60
 
-                // نستخدم Locale.ENGLISH في الـ Format عشان الأرقام تطلع صحيحة للتحويل
                 val timeLeftFormatted = String.format(Locale.ENGLISH, "%02d:%02d:%02d", hours, minutes, seconds)
 
-                // تحديث القيم مع تحويل الأرقام لعربي
                 _timeLeft.value = convertToEasternArabic(timeLeftFormatted)
                 _nextPrayer.value = getArabicPrayerName(nextPrayerType)
 
-                // حساب النسبة المئوية للـ ProgressBar
                 if (currentPrayerTimeForProgress != null) {
                     val totalTime = nextPrayerTime.time - currentPrayerTimeForProgress.time
                     val timePassed = now - currentPrayerTimeForProgress.time
@@ -165,14 +148,11 @@ class PrayerHomeViewModel(private val repository: PrayerRepository) : ViewModel(
                     _prayerProgress.value = progress.coerceIn(0, 100)
                 }
             } else {
-                // في اللحظة اللي العداد يصفر فيها وقبل ما يقلب الصلاة الجاية
                 _timeLeft.value = "00:00:00"
-                // هنا ممكن تعمل refresh للداتا عشان يحدث اليوم
             }
         }
     }
 
-    // دوال مساعدة للتنسيق
     private fun formatTime(date: Date): String {
         return SimpleDateFormat("hh:mm a", Locale("ar")).format(date)
     }

@@ -5,9 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "prayer_timing")
 data class PrayerTimingEntity(
-    @PrimaryKey val date: String, // تم جعل التاريخ هو المفتاح الأساسي لعدم التكرار
+    @PrimaryKey val date: String,
     val fajr: String,
-    val sunrise: String, // <-- ### تمت إضافة هذا السطر ###
+    val sunrise: String,
     val dhuhr: String,
     val asr: String,
     val maghrib: String,

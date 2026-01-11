@@ -11,14 +11,12 @@ class TasbeehActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTasbeehBinding
 
-    // أسماء المفاتيح للحفظ
     private val PREFS_NAME = "tasbeehSharedPrefs"
     private val KEY_SUBHAN = "subhanAllahKey"
     private val KEY_HAMD = "alhamdulillahKey"
     private val KEY_AKBAR = "allahuAkbarKey"
     private val KEY_ASTAGHFIR = "astaghfirullahKey"
 
-    // العدادات
     private var subhanCount = 0
     private var hamdCount = 0
     private var akbarCount = 0
@@ -29,7 +27,6 @@ class TasbeehActivity : AppCompatActivity() {
         binding = ActivityTasbeehBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // ### تفعيل زر الرجوع ###
        binding.btnBack.setOnClickListener {
             finish()
         }
@@ -37,37 +34,30 @@ class TasbeehActivity : AppCompatActivity() {
         loadCounts()
         updateUI()
 
-        // مستمعات النقر (تم تحديث الـ IDs بناءً على الـ XML الجديد)
-
-        // 1. سبحان الله
         binding.cardSubhanView.setOnClickListener {
             subhanCount++
             saveCount(KEY_SUBHAN, subhanCount)
             updateUI()
         }
 
-        // 2. الحمد لله
         binding.cardAlhamdView.setOnClickListener {
             hamdCount++
             saveCount(KEY_HAMD, hamdCount)
             updateUI()
         }
 
-        // 3. الله أكبر
         binding.cardAkbarView.setOnClickListener {
             akbarCount++
             saveCount(KEY_AKBAR, akbarCount)
             updateUI()
         }
 
-        // 4. أستغفر الله
         binding.cardAstaghfarView.setOnClickListener {
             astaghfirCount++
             saveCount(KEY_ASTAGHFIR, astaghfirCount)
             updateUI()
         }
 
-        // تصفير العدادات الفردية (الأيقونات الصغيرة)
         binding.tvResetSubhanallah.setOnClickListener {
             subhanCount = 0
             saveCount(KEY_SUBHAN, 0)
@@ -92,7 +82,6 @@ class TasbeehActivity : AppCompatActivity() {
             updateUI()
         }
 
-        // تصفير الكل
         binding.cardResetAll.setOnClickListener {
             subhanCount = 0
             hamdCount = 0

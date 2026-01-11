@@ -10,7 +10,6 @@ import com.eslamdev.islamic.data.model.DuaCategory
 import com.eslamdev.islamic.data.model.DuaItem
 import com.eslamdev.islamic.data.model.DuaListItem
 
-// 1. أضفنا دالة الاستماع في الـ Constructor
 class DuaAdapter(
     private val onItemClick: (String) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -43,8 +42,6 @@ class DuaAdapter(
             is DuaItem -> {
                 (holder as DuaViewHolder).bind(item)
 
-                // 2. تفعيل الضغط هنا
-                // بنبعت محتوى الدعاء (item.content) للـ Activity
                 holder.itemView.setOnClickListener {
                     onItemClick(item.content)
                 }
@@ -54,7 +51,6 @@ class DuaAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    // ViewHolder للعنوان
     class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.tv_category_title)
         fun bind(item: DuaCategory) {
@@ -62,7 +58,6 @@ class DuaAdapter(
         }
     }
 
-    // ViewHolder للدعاء
     class DuaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.tv_dua_title)
         private val text: TextView = itemView.findViewById(R.id.tv_dua_text)

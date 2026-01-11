@@ -12,13 +12,10 @@ class AzkarDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_azkar_details)
 
-        // لو الفراجمنت لسه متعملش، ننشئه
         if (savedInstanceState == null) {
-            // استلام النوع المرسل من القائمة
             val typeString = intent.getStringExtra("EXTRA_AZKAR_TYPE") ?: AzkarType.SABAH.name
             val type = AzkarType.valueOf(typeString)
 
-            // إنشاء الفراجمنت وإرسال النوع له
             val fragment = AzkarFragment.newInstance(type)
 
             supportFragmentManager.beginTransaction()

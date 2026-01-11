@@ -21,13 +21,6 @@ class LocationHelper(private val context: Context) {
 
     private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
-    // --- بداية الإضافات والتعديلات ---
-
-    /**
-     * دالة جديدة ومهمة: لجلب آخر موقع معروف للجهاز بشكل فوري.
-     * هذه الدالة لا تنتظر تحديثاً جديداً من GPS، بل تعيد الموقع المحفوظ في ذاكرة الجهاز.
-     * @param listener كول باك لإرجاع الموقع عند العثور عليه.
-     */
     @SuppressLint("MissingPermission")
     fun getLastKnownLocation(listener: (Location?) -> Unit) {
         if (!hasLocationPermission()) {
@@ -37,18 +30,14 @@ class LocationHelper(private val context: Context) {
 
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
-                // قد يكون الموقع null في حال كانت هذه المرة الأولى التي يفتح فيها التطبيق
                 listener(location)
             }
             .addOnFailureListener {
-                // في حالة الفشل، أرجع null
+
                 listener(null)
             }
     }
 
-    /**
-     * دالة مساعدة للتحقق من وجود صلاحيات الموقع لتجنب تكرار الكود.
-     */
     private fun hasLocationPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
@@ -56,9 +45,6 @@ class LocationHelper(private val context: Context) {
             context, Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
-
-    // --- نهاية الإضافات والتعديلات ---
-
 
     private fun isGooglePlayServicesAvailable(): Boolean {
         return try {
@@ -70,11 +56,8 @@ class LocationHelper(private val context: Context) {
         }
     }
 
-    /**
-     * هذه الدالة تبقى كما هي، ولكنها الآن تُستخدم لجلب تحديث دقيق للموقع في الخلفية.
-     */
     fun requestSingleLocationUpdate(listener: LocationResultListener) {
-        if (!hasLocationPermission()) { // استخدام الدالة المساعدة الجديدة
+        if (!hasLocationPermission()) {
             listener.onLocationFailed("Location permission not granted.")
             return
         }
@@ -92,7 +75,7 @@ class LocationHelper(private val context: Context) {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             interval = 5000
             fastestInterval = 1000
-            numUpdates = 1 // تأكد من أنها تطلب تحديثاً واحداً فقط
+            numUpdates = 1
         }
 
         fusedLocationClient.requestLocationUpdates(locationRequest, object : LocationCallback() {

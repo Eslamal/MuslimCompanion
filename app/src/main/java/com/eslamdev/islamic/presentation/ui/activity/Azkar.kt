@@ -19,20 +19,17 @@ class Azkar : AppCompatActivity() {
 
 
         binding.btnBack.setOnClickListener {
-            finish() // للرجوع للصفحة السابقة
+            finish()
         }
 
-        // أذكار الصباح
         binding.cardAzkarAlsabah.setOnClickListener {
             openAzkarDetails(AzkarType.SABAH)
         }
 
-        // أذكار المساء
         binding.cardAzkarAlmassa.setOnClickListener {
             openAzkarDetails(AzkarType.MASSA)
         }
 
-        // أذكار بعد الصلاة
         binding.cardAzkarAfter.setOnClickListener {
             openAzkarDetails(AzkarType.AFTER_PRAYER)
         }

@@ -45,13 +45,11 @@ import com.eslamdev.islamic.core.PrayerScheduler
 class MainActivity : AppCompatActivity() {
 
     private lateinit var prayerViewModel: PrayerHomeViewModel
-    // استبدلنا LocationHelper بـ FusedLocationProviderClient المباشر لضمان العمل
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    // تعريف عناصر الواجهة
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var tvGreetingAndDate: TextView
-    private lateinit var tvGregorianDate: TextView // تمت الإضافة
+    private lateinit var tvGregorianDate: TextView
     private lateinit var tvNextPrayer: TextView
     private lateinit var tvTimeLeft: TextView
     private lateinit var progressBarPrayer: ProgressBar
@@ -75,25 +73,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // تهيئة خدمة الموقع
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // تعريف زر الريفرش
         val btnRefresh = findViewById<ImageView>(R.id.btn_refresh_prayers)
 
         btnRefresh.setOnClickListener {
             Toast.makeText(this, "جاري تحديث الموقع والمواقيت...", Toast.LENGTH_SHORT).show()
-            getUserLocation() // الدالة دي بقت موجودة تحت
+            getUserLocation()
             setupHijriDate()
 
-            // جدولة الأذان للصلاة القادمة
+
             PrayerScheduler.scheduleNextPrayer(this)
         }
 
-        // ربط عناصر الواجهة
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
         tvGreetingAndDate = findViewById(R.id.tv_greeting_and_date)
-        tvGregorianDate = findViewById(R.id.tv_gregorian_date) // ربط التاريخ الميلادي
+        tvGregorianDate = findViewById(R.id.tv_gregorian_date)
         tvNextPrayer = findViewById(R.id.tv_next_prayer)
         tvTimeLeft = findViewById(R.id.tv_time_left)
         progressBarPrayer = findViewById(R.id.progress_bar_prayer)
@@ -105,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         tvDailyAya = findViewById(R.id.tv_daily_aya)
         tvDailyDua = findViewById(R.id.tv_daily_dua)
 
-        // إعداد الـ ViewModel مع الـ Repository
+
         val prayerDao = PrayerDatabase.getDatabase(application).prayerTimingDao()
         val repository = PrayerRepository(prayerDao, this)
         val factory = PrayerViewModelFactory(repository)
@@ -114,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         setupMainMenu()
         observeViewModel()
 
-        // طلب الموقع عند الفتح
         getUserLocation()
 
         setupHijriDate()
@@ -123,9 +117,6 @@ class MainActivity : AppCompatActivity() {
         setupSwipeToRefresh()
     }
 
-    // ==========================================
-    // 📍 دوال تحديد الموقع (تمت إضافتها هنا لتعويض LocationHelper)
-    // ==========================================
 
     @SuppressLint("MissingPermission")
     private fun getUserLocation() {
@@ -199,12 +190,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // ==========================================
-    // 🕌 تحديث البيانات والواجهة
-    // ==========================================
-
     private fun updatePrayerTimes(latitude: Double, longitude: Double) {
-        // 1. حفظ الموقع في SharedPreferences
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         prefs.edit().apply {
             putFloat("LATITUDE", latitude.toFloat())
@@ -212,7 +198,6 @@ class MainActivity : AppCompatActivity() {
             apply()
         }
 
-        // 2. تحديث ViewModel
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1
@@ -239,7 +224,6 @@ class MainActivity : AppCompatActivity() {
             MainMenuItem("القبلة", R.drawable.qibla, QiblaActivity::class.java)
         )
 
-        // هنا بنمرر Listener عشان نعالج الضغطات ونعرف نفرق بين القرآن والتفسير
         val adapter = MainMenuAdapter(menuItems) { item ->
             val intent = Intent(this, item.activity)
             if (item.title == "التفسير") {
@@ -250,8 +234,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // لازم نتأكد إن الـ MainMenuAdapter عندك بيقبل Listener في الـ Constructor
-        // لو مش بيقبل، ممكن نستخدم الطريقة القديمة بس التفسير مش هيفتح كـ تفسير
         mainMenuRv.adapter = adapter
     }
 
@@ -276,7 +258,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupHijriDate() {
-        // 1. التاريخ الهجري
         val locale = ULocale("ar@calendar=islamic-civil")
         val hijriCalendar = IcuCalendar.getInstance(locale)
         val day = hijriCalendar.get(IcuCalendar.DAY_OF_MONTH)
@@ -287,7 +268,6 @@ class MainActivity : AppCompatActivity() {
 
         tvGreetingAndDate.text = "$day $monthName $year هـ"
 
-        // 2. التاريخ الميلادي
         val gregorianCalendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("EEEE، d MMMM yyyy", Locale("ar"))
         val gregorianDate = dateFormat.format(gregorianCalendar.time)
@@ -303,22 +283,15 @@ class MainActivity : AppCompatActivity() {
                 val randomHadith = hadithArray.getJSONObject((0 until hadithArray.length()).random())
 
                 val rawHadith = randomHadith.getString("hadith")
-
-                // ### التعديل هنا: تنظيف النص ###
-                // بنشوف لو النص فيه نقطتين ":" زي "الحديث الأول: إنما الأعمال..."
-                // بناخد الكلام اللي بعد النقطتين بس
                 fullDailyHadith = if (rawHadith.contains(":")) {
                     rawHadith.substringAfter(":").trim()
                 } else {
-                    // لو مفيش نقطتين، بنحاول نشيل أول سطر لو هو عنوان
                     if (rawHadith.contains("\n")) {
                         rawHadith.substringAfter("\n").trim()
                     } else {
                         rawHadith
                     }
                 }
-
-                // تنظيف المسافات الزائدة
                 dailyHadithText.text = fullDailyHadith
 
             }
@@ -358,23 +331,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // حديث -> أيقونة النبي (prophet)
         dailyHadithCard.setOnClickListener {
             showContentDialog("حديث شريف", fullDailyHadith, R.drawable.prophet)
         }
 
-        // آية -> أيقونة القرآن (quran)
         dailyAyaCard.setOnClickListener {
             showContentDialog("آية كريمة", fullDailyAya, R.drawable.quran)
         }
 
-        // دعاء -> أيقونة الدعاء (doaa)
         dailyDuaCard.setOnClickListener {
             showContentDialog("دعاء", fullDailyDua, R.drawable.doaa)
         }
     }
 
-    // ضيفنا معامل جديد اسمه iconRes من نوع Int
     private fun showContentDialog(title: String, content: String?, iconRes: Int) {
         if (content == null) {
             Toast.makeText(this, "المحتوى غير متوفر حالياً", Toast.LENGTH_SHORT).show()
@@ -382,17 +351,15 @@ class MainActivity : AppCompatActivity() {
         }
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_daily_content, null)
 
-        // تعريف العناصر
         val dialogTitle = dialogView.findViewById<TextView>(R.id.dialog_title)
         val dialogText = dialogView.findViewById<TextView>(R.id.dialog_text)
-        val dialogIcon = dialogView.findViewById<ImageView>(R.id.dialog_icon) // تعريف الصورة
+        val dialogIcon = dialogView.findViewById<ImageView>(R.id.dialog_icon)
         val closeButton = dialogView.findViewById<Button>(R.id.dialog_close_button)
         val copyButton = dialogView.findViewById<Button>(R.id.btn_copy)
 
-        // تعيين البيانات
         dialogTitle.text = title
         dialogText.text = content
-        dialogIcon.setImageResource(iconRes) // تغيير الصورة بناءً على الباراميتر
+        dialogIcon.setImageResource(iconRes)
 
         val builder = AlertDialog.Builder(this)
         builder.setView(dialogView)

@@ -11,11 +11,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.R
 
-// موديل بسيط للعرض داخل القائمة
 data class PrayerDisplayItem(
     val name: String,
     val time: String,
-    val isNext: Boolean = false // هل دي الصلاة القادمة؟
+    val isNext: Boolean = false
 )
 
 class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>() {
@@ -28,7 +27,6 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // تأكد ان الـ IDs دي موجودة في ملف item_pray.xml
         val card: CardView = itemView.findViewById(R.id.card_prayer_root)
         val name: TextView = itemView.findViewById(R.id.tv_prayer_name)
         val time: TextView = itemView.findViewById(R.id.tv_prayer_time)
@@ -48,13 +46,11 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
         holder.time.text = item.time
 
         if (item.isNext) {
-            // ستايل الصلاة القادمة (مميز - أخضر)
             holder.card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary))
             holder.name.setTextColor(Color.WHITE)
             holder.time.setTextColor(Color.WHITE)
             holder.indicator.visibility = View.VISIBLE
         } else {
-            // الستايل العادي (أبيض)
             holder.card.setCardBackgroundColor(Color.WHITE)
             holder.name.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
             holder.time.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))

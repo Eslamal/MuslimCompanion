@@ -8,12 +8,10 @@ import org.json.JSONObject
 
 class QuranRepository(private val context: Context) {
 
-    // دالة لجلب قائمة السور (بتشتغل في الخلفية)
     suspend fun getSurahList(): List<SurahModel> {
         return withContext(Dispatchers.IO) {
             val list = mutableListOf<SurahModel>()
             try {
-                // فتح ملف Quran.json من الـ Assets
                 val inputStream = context.assets.open("Quran.json")
                 val jsonString = inputStream.bufferedReader().use { it.readText() }
 
@@ -29,7 +27,7 @@ class QuranRepository(private val context: Context) {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            list.sortedBy { it.id } // التأكد من الترتيب
+            list.sortedBy { it.id }
         }
     }
 }

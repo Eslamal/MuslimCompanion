@@ -14,7 +14,6 @@ class HadithDetailActivity : AppCompatActivity() {
         binding = ActivityHadithDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // استقبال البيانات بالمودل الجديد
         @Suppress("DEPRECATION")
         val hadith = intent.getSerializableExtra("hadith_object") as? HadithModel
 
@@ -22,7 +21,6 @@ class HadithDetailActivity : AppCompatActivity() {
             binding.hadithDetailTitle.text = hadith.title
             binding.hadithDetailText.text = hadith.content
 
-            // لو مفيش شرح، نخفي العنوان بتاعه عشان الشكل العام
             if (hadith.description.isNotBlank()) {
                 binding.hadithDetailDescription.text = hadith.description
             } else {

@@ -13,14 +13,12 @@ class DayAdapter : RecyclerView.Adapter<DayAdapter.DayViewHolder>() {
     private var days = listOf<Int>()
     private var selectedDay = -1
 
-    // متغير جديد عشان نعرف إحنا في شهر إيه وسنة كام
     private var currentCalendar: Calendar = Calendar.getInstance()
 
     var onDayClick: ((Int) -> Unit)? = null
 
     fun submitList(newDays: List<Int>, calendar: Calendar) {
         days = newDays
-        // بناخد نسخة من الكالندر عشان نستخدمها في حساب الأيام
         currentCalendar = calendar.clone() as Calendar
         notifyDataSetChanged()
     }
@@ -46,8 +44,6 @@ class DayAdapter : RecyclerView.Adapter<DayAdapter.DayViewHolder>() {
         fun bind(day: Int, isSelected: Boolean) {
             binding.date.text = day.toString()
 
-            // ### التصحيح هنا ###
-            // بنستخدم الكالندر المبعوتة (للشهر المختار) مش الوقت الحالي
             val tempCal = currentCalendar.clone() as Calendar
             tempCal.set(Calendar.DAY_OF_MONTH, day)
 

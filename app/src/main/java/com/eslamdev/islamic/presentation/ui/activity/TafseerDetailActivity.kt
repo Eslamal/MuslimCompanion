@@ -31,7 +31,6 @@ class TafseerDetailActivity : AppCompatActivity() {
         surahNameTv = findViewById(R.id.surah_name)
         recyclerView = findViewById(R.id.tafseer_recycler_view)
 
-        // استقبال البيانات
         val surahIndex = intent.getIntExtra("SURA_NO", 1)
         val surahName = intent.getStringExtra("SURA_NAME") ?: ""
 
@@ -39,7 +38,7 @@ class TafseerDetailActivity : AppCompatActivity() {
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         btnBack.setOnClickListener {
-            finish() // عشان يقفل الصفحة ويرجع للي قبلها
+            finish()
         }
         setupRecyclerView()
         loadTafseer(surahIndex)
@@ -54,7 +53,7 @@ class TafseerDetailActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val list = ArrayList<TafseerAya>()
             try {
-                // 1. تحميل الآيات (النص القرآني) لربطها بالتفسير
+
                 val quranMap = HashMap<Int, String>()
                 try {
                     val quranIs = assets.open("QuranDetails.json")
@@ -76,19 +75,16 @@ class TafseerDetailActivity : AppCompatActivity() {
                     Log.e("TafseerError", "Error loading QuranDetails: ${e.message}")
                 }
 
-                // 2. تحميل التفسير (تعديل الهيكل ليناسب tafseer.json المرفق)
                 val tafseerIs = assets.open("tafseer.json")
                 val jsonString = tafseerIs.bufferedReader().use { it.readText() }
 
-                // الملف يبدأ بـ [ لذلك هو JSONArray وليس JSONObject
                 val tafseerArray = JSONArray(jsonString)
 
                 for (i in 0 until tafseerArray.length()) {
                     val tObj = tafseerArray.getJSONObject(i)
 
-                    // المفاتيح في الملف هي "number" للسورة و "aya" للآية (كنصوص)
                     val jsonSuraNumStr = tObj.optString("number")
-                    val jsonSuraNum = jsonSuraNumStr.toIntOrNull() ?: -1 // تحويل النص لرقم
+                    val jsonSuraNum = jsonSuraNumStr.toIntOrNull() ?: -1
 
                     if (jsonSuraNum == surahIndex) {
                         val ayaNumStr = tObj.optString("aya")
@@ -97,7 +93,6 @@ class TafseerDetailActivity : AppCompatActivity() {
 
                         var ayaText = quranMap[ayaNum] ?: ""
 
-                        // معالجة البسملة (حذفها إذا كانت مكررة في بداية الآية 1)
                         if (ayaNum == 1 && surahIndex != 1 && surahIndex != 9 && ayaText.contains("بِسْمِ اللَّهِ")) {
                             ayaText = ayaText.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim()
                         }

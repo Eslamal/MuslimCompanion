@@ -22,7 +22,6 @@ class HadithViewModel(private val repository: HadithRepository) : ViewModel() {
     }
 }
 
-// Factory
 class HadithViewModelFactory(private val repository: HadithRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HadithViewModel(repository) as T

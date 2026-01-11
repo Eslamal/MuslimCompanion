@@ -25,7 +25,7 @@ class DuaActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewModel: DuaViewModel
-    private lateinit var adapter: DuaAdapter // غيرناها لـ lateinit عشان نعرفها جوه onCreate
+    private lateinit var adapter: DuaAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,9 +34,7 @@ class DuaActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.dua_rv)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 1. تعريف الأدابتور مع حدث النقر
         adapter = DuaAdapter { selectedDuaContent ->
-            // عند الضغط على الدعاء، نفتح الدايلوج
             showContentDialog("دعاء", selectedDuaContent, R.drawable.doaa)
         }
 
@@ -59,32 +57,26 @@ class DuaActivity : AppCompatActivity() {
         }
     }
 
-    // 2. دالة عرض الدايلوج (نفس تصميم الصفحة الرئيسية)
     private fun showContentDialog(title: String, content: String, iconRes: Int) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_daily_content, null)
 
-        // تعريف العناصر
         val dialogTitle = dialogView.findViewById<TextView>(R.id.dialog_title)
         val dialogText = dialogView.findViewById<TextView>(R.id.dialog_text)
         val dialogIcon = dialogView.findViewById<ImageView>(R.id.dialog_icon)
         val closeButton = dialogView.findViewById<Button>(R.id.dialog_close_button)
         val copyButton = dialogView.findViewById<Button>(R.id.btn_copy)
 
-        // تعيين البيانات
         dialogTitle.text = title
         dialogText.text = content
         dialogIcon.setImageResource(iconRes)
 
-        // إنشاء وعرض الدايلوج
         val builder = AlertDialog.Builder(this)
         builder.setView(dialogView)
         val dialog = builder.create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // زر الإغلاق
         closeButton.setOnClickListener { dialog.dismiss() }
 
-        // زر النسخ
         copyButton.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
             val clip = android.content.ClipData.newPlainText("Islamic App Dua", content)

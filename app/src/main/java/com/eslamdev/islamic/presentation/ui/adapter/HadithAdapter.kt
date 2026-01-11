@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.data.model.HadithModel
-import com.eslamdev.islamic.databinding.HadithItemLayoutBinding // تأكد إن الـ XML اسمه كدا أو عدله
+import com.eslamdev.islamic.databinding.HadithItemLayoutBinding
 
 class HadithAdapter(private val onClick: (HadithModel) -> Unit) :
     ListAdapter<HadithModel, HadithAdapter.HadithViewHolder>(DiffCallback) {

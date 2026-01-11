@@ -7,8 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.data.model.SurahModel
 import com.eslamdev.islamic.databinding.SurahItemForTafseerBinding
-// ^ ملاحظة: هنستخدم نفس تصميم الـ XML القديم لأنه أشيك (surah_item_for_tafseer.xml)
-// تأكد إن اسم الملف XML هو surah_item_for_tafseer.xml عشان الـ Binding ده يشتغل
+
 
 class SurahAdapter(private val onClick: (SurahModel) -> Unit) :
     ListAdapter<SurahModel, SurahAdapter.SurahViewHolder>(DiffCallback) {

@@ -30,7 +30,7 @@ class AzkarFragment : Fragment() {
 
     private lateinit var viewModel: AzkarViewModel
     private val azkarAdapter = AzkarAdapter()
-    private var azkarType: AzkarType = AzkarType.SABAH // Default
+    private var azkarType: AzkarType = AzkarType.SABAH
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +53,6 @@ class AzkarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // تفعيل زر الرجوع
-        // بما إننا داخل Fragment بنستخدم requireActivity().finish() لغلق الـ Activity الحالية
         val btnBack = view.findViewById<ImageButton>(R.id.btn_back)
         btnBack.setOnClickListener {
             requireActivity().finish()
@@ -88,7 +86,6 @@ class AzkarFragment : Fragment() {
             AzkarType.MASSA -> "أذكار المساء"
             AzkarType.AFTER_PRAYER -> "أذكار بعد الصلاة"
         }
-        // استخدام الـ ID الجديد للعنوان في التول بار
         binding.toolbar.findViewById<TextView>(R.id.toolbar_title).text = title
     }
 

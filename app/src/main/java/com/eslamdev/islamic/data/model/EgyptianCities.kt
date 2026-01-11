@@ -3,7 +3,6 @@ package com.eslamdev.islamic.data.model
 data class City(val name: String, val lat: Double, val lon: Double)
 
 object EgyptianCities {
-    // خريطة المحافظات والمدن التابعة لها
     val governorates = mapOf(
         "القاهرة" to listOf(
             City("القاهرة الجديدة", 30.0444, 31.2357),
@@ -54,6 +53,5 @@ object EgyptianCities {
             City("بورسعيد", 31.2653, 32.3019),
             City("بورفؤاد", 31.2465, 32.3323)
         )
-        // تقدر تزود باقي المحافظات بنفس الطريقة
     )
 }

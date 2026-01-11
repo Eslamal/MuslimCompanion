@@ -5,6 +5,6 @@ import java.io.Serializable
 data class HadithModel(
     val id: Int,
     val title: String,
-    val content: String, // كان اسمها hadithText
+    val content: String,
     val description: String = ""
 ) : Serializable

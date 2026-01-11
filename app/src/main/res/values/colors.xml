@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#006D5B</color> <color name="colorPrimaryVariant">#004D40</color>
+    <color name="colorPrimary">#006D5B</color>
+    <color name="colorPrimaryVariant">#004D40</color>
     <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorSecondary">#D4AF37</color> <color name="colorSecondaryVariant">#B59023</color>
+    <color name="colorSecondary">#D4AF37</color>
+    <color name="colorSecondaryVariant">#B59023</color>
     <color name="colorOnSecondary">#000000</color>
 
-    <color name="background_main">#F5F6F8</color> <color name="bg_cream">#FFFBF2</color>       <color name="bg_white">#FFFFFF</color>       <color name="card_background">#FFFFFF</color>
+    <color name="background_main">#F5F6F8</color>
+    <color name="bg_cream">#FFFBF2</color>
+    <color name="bg_white">#FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
     <color name="background_main_neumorphic">#F5F6F8</color>
 
-    <color name="primary_green">#006D5B</color>  <color name="green_quran">#006D5B</color>
+    <color name="primary_green">#006D5B</color>
+    <color name="green_quran">#006D5B</color>
     <color name="prayer_highlight_background">#E0F2F1</color>
     <color name="selected_day_color">#D4AF37</color>
 
