@@ -1,9 +1,13 @@
 package com.eslamdev.islamic.presentation.ui.adapter
 
 import android.graphics.Color
+import android.os.Build
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.eslamdev.islamic.R
 import com.eslamdev.islamic.databinding.ItemCalenderBinding
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,24 +46,58 @@ class DayAdapter : RecyclerView.Adapter<DayAdapter.DayViewHolder>() {
 
     inner class DayViewHolder(private val binding: ItemCalenderBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(day: Int, isSelected: Boolean) {
+            val context = binding.root.context
             binding.date.text = day.toString()
 
             val tempCal = currentCalendar.clone() as Calendar
             tempCal.set(Calendar.DAY_OF_MONTH, day)
 
+            // 1. حساب اسم اليوم
             val dayName = SimpleDateFormat("EEE", Locale("ar")).format(tempCal.time)
             binding.day.text = dayName
 
-            if (isSelected) {
-                binding.root.setCardBackgroundColor(Color.parseColor("#006D5B"))
-                binding.date.setTextColor(Color.WHITE)
-                binding.day.setTextColor(Color.WHITE)
-            } else {
-                binding.root.setCardBackgroundColor(Color.WHITE)
-                binding.date.setTextColor(Color.BLACK)
-                binding.day.setTextColor(Color.GRAY)
+            // 2. خوارزمية أيام الصيام السُنة
+            val dayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK)
+            val isSunnahFastingDay = dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.THURSDAY
+
+            var isWhiteDay = false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                try {
+                    val localDate = java.time.LocalDate.of(
+                        tempCal.get(Calendar.YEAR),
+                        tempCal.get(Calendar.MONTH) + 1,
+                        day
+                    )
+                    val hijriDate = java.time.chrono.HijrahDate.from(localDate)
+                    val hijriDay = hijriDate.get(java.time.temporal.ChronoField.DAY_OF_MONTH)
+                    // الأيام البيض
+                    isWhiteDay = hijriDay in 13..15
+                } catch (e: Exception) {}
             }
 
+            // إظهار أو إخفاء أيقونة الصيام (الهلال)
+            if (isSunnahFastingDay || isWhiteDay) {
+                binding.ivFasting.visibility = View.VISIBLE
+            } else {
+                binding.ivFasting.visibility = View.GONE
+            }
+
+            // 3. تظبيط الألوان بناءً على الاختيار (ودعم الوضع الليلي)
+            if (isSelected) {
+                binding.root.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                binding.date.setTextColor(Color.WHITE)
+                binding.day.setTextColor(Color.WHITE)
+                binding.ivFasting.setColorFilter(Color.WHITE) // الهلال لونه أبيض لما تختار اليوم
+                binding.root.cardElevation = 8f
+            } else {
+                binding.root.setCardBackgroundColor(ContextCompat.getColor(context, R.color.card_background))
+                binding.date.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                binding.day.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                binding.ivFasting.setColorFilter(ContextCompat.getColor(context, R.color.colorSecondary)) // الهلال لونه ذهبي في العادي
+                binding.root.cardElevation = 0f
+            }
+
+            // 4. التعامل مع الضغط
             binding.root.setOnClickListener {
                 selectedDay = day
                 notifyDataSetChanged()

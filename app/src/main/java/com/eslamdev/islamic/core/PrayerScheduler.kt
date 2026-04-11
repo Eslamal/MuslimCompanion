@@ -32,6 +32,11 @@ object PrayerScheduler {
         var prayerTimes = PrayerTimes(coordinates, dateComponents, params)
         var nextPrayer = prayerTimes.nextPrayer()
 
+        // ### التعديل هنا: منع الأذان وقت الشروق وتوجيهه للظهر مباشرة ###
+        if (nextPrayer == Prayer.SUNRISE) {
+            nextPrayer = Prayer.DHUHR
+        }
+
         if (nextPrayer == Prayer.NONE) {
             val tomorrow = Calendar.getInstance()
             tomorrow.add(Calendar.DAY_OF_YEAR, 1)

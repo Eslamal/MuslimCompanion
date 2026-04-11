@@ -145,7 +145,7 @@ class PrayerActivity : AppCompatActivity() {
             } catch (e: Exception) { continue }
         }
 
-        return 0
+        return -1 // كل صلوات اليوم خلصت
     }
 
     private fun showSettingsDialog() {
@@ -442,17 +442,60 @@ class PrayerActivity : AppCompatActivity() {
             if (timing != null) updatePrayerList(timing, isTodayReal)
         }
     }
+
+    // ### التعديل الأساسي لعمل حالات الصلاة والمسار الزمني ###
     private fun updatePrayerList(timing: PrayerTimingEntity, isToday: Boolean) {
         val prayerList = mutableListOf<PrayerDisplayItem>()
         var nextPrayerIndex = -1
-        if (isToday) nextPrayerIndex = getNextPrayerIndex(timing)
+        if (isToday) {
+            nextPrayerIndex = getNextPrayerIndex(timing)
+        }
+
         val names = listOf("الفجر", "الشروق", "الظهر", "العصر", "المغرب", "العشاء")
         val times = listOf(timing.fajr, timing.sunrise, timing.dhuhr, timing.asr, timing.maghrib, timing.isha)
+
+        // التحقق مما إذا كان اليوم المختار قد مر أم لا
+        val todayCal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val selectedCal = currentCalendar.clone() as Calendar
+        selectedCal.apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val isPastDay = selectedCal.before(todayCal)
+
         for (i in names.indices) {
-            prayerList.add(PrayerDisplayItem(name = names[i], time = times[i], isNext = (i == nextPrayerIndex)))
+            val isSunrise = (i == 1) // الشروق هو دائمًا العنصر الثاني
+            val isNext = isToday && (i == nextPrayerIndex)
+
+            // تحديد إذا كانت الصلاة قد مرت
+            val isPassed = when {
+                isPastDay -> true // إذا كان اليوم كله في الماضي
+                isToday -> if (nextPrayerIndex != -1) i < nextPrayerIndex else true // لو إحنا في اليوم الحالي
+                else -> false // إذا كان اليوم في المستقبل
+            }
+
+            prayerList.add(
+                PrayerDisplayItem(
+                    name = names[i],
+                    time = times[i],
+                    isNext = isNext,
+                    isPassed = isPassed,
+                    isSunrise = isSunrise
+                )
+            )
         }
         prayerAdapter.submitList(prayerList)
     }
+
     private fun getDaysOfMonth(calendar: Calendar): List<Int> {
         val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         return (1..maxDays).toList()

@@ -9,7 +9,7 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.eslamdev.islamic"
+        applicationId "com.eslamdev.muslim.companion"
         minSdk 24
         targetSdk 34
         versionCode 1

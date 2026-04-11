@@ -86,6 +86,9 @@
         <activity
             android:name=".presentation.ui.activity.TasbeehActivity"
             android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.ShortSurahsActivity"
+            android:exported="false" />
 
         <receiver
             android:name=".core.PrayerReceiver"

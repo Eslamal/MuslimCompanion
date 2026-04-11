@@ -11,10 +11,13 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.R
 
+// تحديث الـ Data Class ليشمل حالات الصلاة الجديدة
 data class PrayerDisplayItem(
     val name: String,
     val time: String,
-    val isNext: Boolean = false
+    val isNext: Boolean = false,
+    val isPassed: Boolean = false,
+    val isSunrise: Boolean = false
 )
 
 class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>() {
@@ -31,6 +34,11 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
         val name: TextView = itemView.findViewById(R.id.tv_prayer_name)
         val time: TextView = itemView.findViewById(R.id.tv_prayer_time)
         val indicator: ImageView = itemView.findViewById(R.id.iv_next_indicator)
+
+        // ربط عناصر المسار الزمني (Timeline)
+        val lineTop: View = itemView.findViewById(R.id.timeline_line_top)
+        val lineBottom: View = itemView.findViewById(R.id.timeline_line_bottom)
+        val node: CardView = itemView.findViewById(R.id.timeline_node)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -45,16 +53,71 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
         holder.name.text = item.name
         holder.time.text = item.time
 
-        if (item.isNext) {
-            holder.card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary))
-            holder.name.setTextColor(Color.WHITE)
-            holder.time.setTextColor(Color.WHITE)
-            holder.indicator.visibility = View.VISIBLE
-        } else {
-            holder.card.setCardBackgroundColor(Color.WHITE)
-            holder.name.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
-            holder.time.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
-            holder.indicator.visibility = View.GONE
+        // 1. التحكم في إظهار وإخفاء أطراف المسار الزمني
+        // بنخفي الخط العلوي لأول عنصر، والخط السفلي لآخر عنصر
+        holder.lineTop.visibility = if (position == 0) View.INVISIBLE else View.VISIBLE
+        holder.lineBottom.visibility = if (position == itemCount - 1) View.INVISIBLE else View.VISIBLE
+
+        // تجهيز الألوان
+        val colorPrimary = ContextCompat.getColor(context, R.color.colorPrimary)
+        val colorPassed = Color.parseColor("#9E9E9E") // لون رمادي للصلوات اللي فاتت
+        val colorDefaultLine = Color.parseColor("#E0E0E0") // لون رمادي فاتح للخطوط اللي لسه مجاتش
+        val colorCardBg = ContextCompat.getColor(context, R.color.card_background)
+
+        // 2. تلوين الكروت والمسار بناءً على حالة الصلاة
+        when {
+            item.isNext -> {
+                // الصلاة القادمة (منورة أخضر بالكامل)
+                holder.card.setCardBackgroundColor(colorPrimary)
+                holder.name.setTextColor(Color.WHITE)
+                holder.time.setTextColor(Color.WHITE)
+                holder.indicator.visibility = View.VISIBLE
+                holder.indicator.setColorFilter(Color.WHITE)
+
+                holder.node.setCardBackgroundColor(colorPrimary)
+                holder.lineTop.setBackgroundColor(colorPrimary) // المسار اللي قبلها اكتمل
+                holder.lineBottom.setBackgroundColor(colorDefaultLine) // المسار اللي بعدها لسه
+            }
+            item.isPassed -> {
+                // الصلوات الفائتة (لون باهت، والمسار بتاعها اكتمل وبقى أخضر)
+                holder.card.setCardBackgroundColor(colorCardBg)
+                holder.name.setTextColor(colorPassed)
+                holder.time.setTextColor(colorPassed)
+                holder.indicator.visibility = View.GONE
+
+                holder.node.setCardBackgroundColor(colorPrimary)
+                holder.lineTop.setBackgroundColor(colorPrimary)
+                holder.lineBottom.setBackgroundColor(colorPrimary)
+            }
+            item.isSunrise -> {
+                // الشروق (لون ذهبي مميز عشان مش صلاة فرض)
+                holder.card.setCardBackgroundColor(colorCardBg)
+                holder.name.setTextColor(ContextCompat.getColor(context, R.color.colorSecondary))
+                holder.time.setTextColor(ContextCompat.getColor(context, R.color.colorSecondary))
+                holder.indicator.visibility = View.GONE
+
+                holder.node.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorSecondary))
+
+                // الشروق دايماً بيبقى بعد الفجر، فلو الفجر عدى، خط الشروق يبقى منور
+                if (item.isPassed) {
+                    holder.lineTop.setBackgroundColor(colorPrimary)
+                    holder.lineBottom.setBackgroundColor(colorPrimary)
+                } else {
+                    holder.lineTop.setBackgroundColor(colorDefaultLine)
+                    holder.lineBottom.setBackgroundColor(colorDefaultLine)
+                }
+            }
+            else -> {
+                // الصلوات القادمة العادية (لسه مجاتش)
+                holder.card.setCardBackgroundColor(colorCardBg)
+                holder.name.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                holder.time.setTextColor(colorPrimary)
+                holder.indicator.visibility = View.GONE
+
+                holder.node.setCardBackgroundColor(colorDefaultLine)
+                holder.lineTop.setBackgroundColor(colorDefaultLine)
+                holder.lineBottom.setBackgroundColor(colorDefaultLine)
+            }
         }
     }
 
