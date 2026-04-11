@@ -222,7 +222,8 @@ class MainActivity : AppCompatActivity() {
             MainMenuItem("المسبحة", R.drawable.beads, TasbeehActivity::class.java),
             MainMenuItem("المواقيت", R.drawable.prayer, PrayerActivity::class.java),
             MainMenuItem("القبلة", R.drawable.qibla, QiblaActivity::class.java),
-            MainMenuItem("ايات للصلاة", R.drawable.quran, ShortSurahsActivity::class.java)
+            MainMenuItem("ايات للصلاة", R.drawable.quran, ShortSurahsActivity::class.java),
+            MainMenuItem("قصص الصحابة", R.drawable.prophet, CompanionsActivity::class.java)
         )
 
         val adapter = MainMenuAdapter(menuItems) { item ->
