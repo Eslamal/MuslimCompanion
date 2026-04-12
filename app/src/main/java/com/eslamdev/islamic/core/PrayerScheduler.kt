@@ -32,7 +32,6 @@ object PrayerScheduler {
         var prayerTimes = PrayerTimes(coordinates, dateComponents, params)
         var nextPrayer = prayerTimes.nextPrayer()
 
-        // ### التعديل هنا: منع الأذان وقت الشروق وتوجيهه للظهر مباشرة ###
         if (nextPrayer == Prayer.SUNRISE) {
             nextPrayer = Prayer.DHUHR
         }

@@ -216,14 +216,15 @@ class MainActivity : AppCompatActivity() {
         val menuItems = listOf(
             MainMenuItem("القرآن", R.drawable.quran, SurahListActivity::class.java),
             MainMenuItem("التفسير", R.drawable.tafseer, SurahListActivity::class.java),
+            MainMenuItem("ايات للصلاة", R.drawable.quran, ShortSurahsActivity::class.java),
             MainMenuItem("الأذكار", R.drawable.beads, Azkar::class.java),
             MainMenuItem("الأحاديث", R.drawable.prophet, HadithListActivity::class.java),
             MainMenuItem("الأدعية", R.drawable.doaa, DuaActivity::class.java),
             MainMenuItem("المسبحة", R.drawable.beads, TasbeehActivity::class.java),
             MainMenuItem("المواقيت", R.drawable.prayer, PrayerActivity::class.java),
             MainMenuItem("القبلة", R.drawable.qibla, QiblaActivity::class.java),
-            MainMenuItem("ايات للصلاة", R.drawable.quran, ShortSurahsActivity::class.java),
-            MainMenuItem("قصص الصحابة", R.drawable.prophet, CompanionsActivity::class.java)
+            MainMenuItem("قصص الصحابة", R.drawable.prophet, CompanionsActivity::class.java),
+            MainMenuItem("خطب ودروس", R.drawable.prophet, LessonsActivity::class.java)
         )
 
         val adapter = MainMenuAdapter(menuItems) { item ->

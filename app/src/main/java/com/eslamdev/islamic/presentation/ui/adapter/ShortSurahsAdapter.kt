@@ -33,30 +33,21 @@ class ShortSurahsAdapter(private val surahsList: List<ShortSurah>) :
         holder.surahName.text = surah.name
         holder.surahInfo.text = surah.info
 
-        // 🌟 السحر هنا: تمرير النص للدالة عشان تحط الأرقام
         holder.surahText.text = formatAyahText(surah.text)
     }
 
     override fun getItemCount(): Int = surahsList.size
 
-    // ==========================================
-    // دوال المساعدة لترقيم الآيات
-    // ==========================================
 
     private fun formatAyahText(text: String): String {
-        // بنقسم النص بناءً على علامة نهاية الآية القديمة
         val parts = text.split("۝")
         val builder = java.lang.StringBuilder()
 
-        // بنلف على كل الآيات (ونستثني آخر جزء لأنه بيكون فاضي بعد آخر علامة)
         for (i in 0 until parts.size - 1) {
             val arabicNum = getArabicNumber(i + 1)
-            // رجعنا العلامة القديمة (۝) وحطينا الرقم بعدها مباشرة
-            // ملحوظة: الخطوط القرآنية بتفهم الترتيب ده وتدخل الرقم جوه الدائرة تلقائياً
             builder.append(parts[i].trim()).append(" ۝$arabicNum ")
         }
 
-        // لو في نص متبقي بالصدفة بعد آخر علامة بنضيفه
         if (parts.last().isNotBlank()) {
             builder.append(parts.last().trim())
         }

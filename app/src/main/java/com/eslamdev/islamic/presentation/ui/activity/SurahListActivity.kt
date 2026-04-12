@@ -50,7 +50,6 @@ class SurahListActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         val adapter = SurahAdapter { surah ->
             if (isTafseerMode) {
-                // الذهاب للتفسير
                 val intent = Intent(this, TafseerDetailActivity::class.java)
                 intent.putExtra("SURA_NO", surah.id)
                 intent.putExtra("SURA_NAME", surah.name)

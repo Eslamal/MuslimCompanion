@@ -52,7 +52,6 @@ class PrayerReceiver : BroadcastReceiver() {
                 description = "تنبيهات مواقيت الصلاة والأذان"
 
                 if (isSoundEnabled) {
-                    // لو الصوت مفعل، بنربط الصوت بالقناة
                     setSound(soundUri, AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -77,7 +76,7 @@ class PrayerReceiver : BroadcastReceiver() {
             .setContentText(if (isSoundEnabled) "حي على الصلاة.. حي على الفلاح" else "تم كتم صوت الأذان")
             .setPriority(if (isSoundEnabled) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setAutoCancel(true) // الإشعار يختفي لما تضغط عليه
+            .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
         if (isSoundEnabled) {

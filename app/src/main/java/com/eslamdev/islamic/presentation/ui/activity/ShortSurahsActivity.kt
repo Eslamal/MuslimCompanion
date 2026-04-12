@@ -17,31 +17,24 @@ class ShortSurahsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_short_surahs)
 
-        // زر الرجوع
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
         val recyclerView = findViewById<RecyclerView>(R.id.rv_short_surahs)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // قراءة السور من ملف الـ JSON
         val surahs = loadSurahsFromJson()
 
-        // إرسال البيانات للأدابتور
         recyclerView.adapter = ShortSurahsAdapter(surahs)
     }
 
-    // دالة لقراءة الداتا من مجلد Assets
     private fun loadSurahsFromJson(): List<ShortSurah> {
         val list = mutableListOf<ShortSurah>()
         try {
-            // قراءة الملف كنص
             val inputStream = assets.open("short_surahs.json")
             val jsonString = InputStreamReader(inputStream).readText()
 
-            // تحويل النص إلى JSONArray
             val jsonArray = JSONArray(jsonString)
 
-            // سحب البيانات من كل عنصر
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
                 list.add(

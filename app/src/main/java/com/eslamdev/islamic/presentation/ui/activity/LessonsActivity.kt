@@ -13,43 +13,43 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.R
-import com.eslamdev.islamic.presentation.ui.adapter.Companion
-import com.eslamdev.islamic.presentation.ui.adapter.CompanionsAdapter
+import com.eslamdev.islamic.presentation.ui.adapter.Lesson
+import com.eslamdev.islamic.presentation.ui.adapter.LessonsAdapter
 import org.json.JSONArray
 import java.io.InputStreamReader
 
-class CompanionsActivity : AppCompatActivity() {
+class LessonsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_companions)
+        setContentView(R.layout.activity_lessons)
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.rv_companions)
+        val recyclerView = findViewById<RecyclerView>(R.id.rv_lessons)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val companions = loadCompanionsFromJson()
+        val lessons = loadLessonsFromJson()
 
-        recyclerView.adapter = CompanionsAdapter(companions) { companion ->
-            showStoryDialog(companion)
+        recyclerView.adapter = LessonsAdapter(lessons) { lesson ->
+            showLessonDialog(lesson)
         }
     }
 
-    private fun loadCompanionsFromJson(): List<Companion> {
-        val list = mutableListOf<Companion>()
+    private fun loadLessonsFromJson(): List<Lesson> {
+        val list = mutableListOf<Lesson>()
         try {
-            val inputStream = assets.open("companions.json")
+            val inputStream = assets.open("lessons.json")
             val jsonString = InputStreamReader(inputStream).readText()
             val jsonArray = JSONArray(jsonString)
 
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
                 list.add(
-                    Companion(
-                        name = obj.getString("name"),
+                    Lesson(
                         title = obj.getString("title"),
-                        story = obj.getString("story")
+                        sheikh = obj.getString("sheikh"),
+                        content = obj.getString("content")
                     )
                 )
             }
@@ -59,7 +59,7 @@ class CompanionsActivity : AppCompatActivity() {
         return list
     }
 
-    private fun showStoryDialog(companion: Companion) {
+    private fun showLessonDialog(lesson: Lesson) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_story, null)
 
         val dialogTitle = dialogView.findViewById<TextView>(R.id.dialog_title)
@@ -68,29 +68,23 @@ class CompanionsActivity : AppCompatActivity() {
         val btnClose = dialogView.findViewById<Button>(R.id.btn_close)
         val btnCopy = dialogView.findViewById<Button>(R.id.btn_copy)
 
-        dialogTitle.text = companion.name
-        dialogSubtitle.text = companion.title
-        dialogText.text = companion.story
+        dialogTitle.text = lesson.title
+        dialogSubtitle.text = lesson.sheikh
+        dialogText.text = lesson.content
 
         val builder = AlertDialog.Builder(this)
         builder.setView(dialogView)
         val dialog = builder.create()
-
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        btnClose.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnClose.setOnClickListener { dialog.dismiss() }
 
         btnCopy.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-            val copyText = "✨ ${companion.name} ✨\n(${companion.title})\n\n${companion.story}\n\n- تم النسخ من التطبيق الإسلامي"
-
-            val clip = ClipData.newPlainText("Companion Story", copyText)
+            val copyText = "🎙️ ${lesson.title}\n\n${lesson.content}\n\n- من قسم الخطب والدروس"
+            val clip = ClipData.newPlainText("Lesson Content", copyText)
             clipboard.setPrimaryClip(clip)
-
-            Toast.makeText(this, "تم نسخ قصة ${companion.name} بنجاح", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "تم نسخ الخطبة بنجاح", Toast.LENGTH_SHORT).show()
         }
 
         dialog.show()

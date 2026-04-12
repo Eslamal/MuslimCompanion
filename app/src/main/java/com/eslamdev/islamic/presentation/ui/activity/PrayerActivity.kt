@@ -145,7 +145,7 @@ class PrayerActivity : AppCompatActivity() {
             } catch (e: Exception) { continue }
         }
 
-        return -1 // كل صلوات اليوم خلصت
+        return -1
     }
 
     private fun showSettingsDialog() {
@@ -443,7 +443,6 @@ class PrayerActivity : AppCompatActivity() {
         }
     }
 
-    // ### التعديل الأساسي لعمل حالات الصلاة والمسار الزمني ###
     private fun updatePrayerList(timing: PrayerTimingEntity, isToday: Boolean) {
         val prayerList = mutableListOf<PrayerDisplayItem>()
         var nextPrayerIndex = -1
@@ -454,7 +453,6 @@ class PrayerActivity : AppCompatActivity() {
         val names = listOf("الفجر", "الشروق", "الظهر", "العصر", "المغرب", "العشاء")
         val times = listOf(timing.fajr, timing.sunrise, timing.dhuhr, timing.asr, timing.maghrib, timing.isha)
 
-        // التحقق مما إذا كان اليوم المختار قد مر أم لا
         val todayCal = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
@@ -473,14 +471,14 @@ class PrayerActivity : AppCompatActivity() {
         val isPastDay = selectedCal.before(todayCal)
 
         for (i in names.indices) {
-            val isSunrise = (i == 1) // الشروق هو دائمًا العنصر الثاني
+            val isSunrise = (i == 1)
             val isNext = isToday && (i == nextPrayerIndex)
 
             // تحديد إذا كانت الصلاة قد مرت
             val isPassed = when {
-                isPastDay -> true // إذا كان اليوم كله في الماضي
-                isToday -> if (nextPrayerIndex != -1) i < nextPrayerIndex else true // لو إحنا في اليوم الحالي
-                else -> false // إذا كان اليوم في المستقبل
+                isPastDay -> true
+                isToday -> if (nextPrayerIndex != -1) i < nextPrayerIndex else true
+                else -> false
             }
 
             prayerList.add(

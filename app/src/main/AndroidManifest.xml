@@ -92,6 +92,9 @@
         <activity
             android:name=".presentation.ui.activity.CompanionsActivity"
             android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.LessonsActivity"
+            android:exported="false" />
 
         <receiver
             android:name=".core.PrayerReceiver"

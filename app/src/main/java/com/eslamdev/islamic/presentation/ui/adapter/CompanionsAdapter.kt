@@ -34,7 +34,6 @@ class CompanionsAdapter(
         holder.name.text = companion.name
         holder.title.text = companion.title
 
-        // تفعيل الضغط على الكارت
         holder.itemView.setOnClickListener {
             onItemClick(companion)
         }

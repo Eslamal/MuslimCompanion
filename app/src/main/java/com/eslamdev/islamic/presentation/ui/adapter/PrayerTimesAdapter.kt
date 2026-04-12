@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eslamdev.islamic.R
 
-// تحديث الـ Data Class ليشمل حالات الصلاة الجديدة
 data class PrayerDisplayItem(
     val name: String,
     val time: String,
@@ -35,7 +34,6 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
         val time: TextView = itemView.findViewById(R.id.tv_prayer_time)
         val indicator: ImageView = itemView.findViewById(R.id.iv_next_indicator)
 
-        // ربط عناصر المسار الزمني (Timeline)
         val lineTop: View = itemView.findViewById(R.id.timeline_line_top)
         val lineBottom: View = itemView.findViewById(R.id.timeline_line_bottom)
         val node: CardView = itemView.findViewById(R.id.timeline_node)
@@ -53,21 +51,16 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
         holder.name.text = item.name
         holder.time.text = item.time
 
-        // 1. التحكم في إظهار وإخفاء أطراف المسار الزمني
-        // بنخفي الخط العلوي لأول عنصر، والخط السفلي لآخر عنصر
         holder.lineTop.visibility = if (position == 0) View.INVISIBLE else View.VISIBLE
         holder.lineBottom.visibility = if (position == itemCount - 1) View.INVISIBLE else View.VISIBLE
 
-        // تجهيز الألوان
         val colorPrimary = ContextCompat.getColor(context, R.color.colorPrimary)
-        val colorPassed = Color.parseColor("#9E9E9E") // لون رمادي للصلوات اللي فاتت
-        val colorDefaultLine = Color.parseColor("#E0E0E0") // لون رمادي فاتح للخطوط اللي لسه مجاتش
+        val colorPassed = Color.parseColor("#9E9E9E")
+        val colorDefaultLine = Color.parseColor("#E0E0E0")
         val colorCardBg = ContextCompat.getColor(context, R.color.card_background)
 
-        // 2. تلوين الكروت والمسار بناءً على حالة الصلاة
         when {
             item.isNext -> {
-                // الصلاة القادمة (منورة أخضر بالكامل)
                 holder.card.setCardBackgroundColor(colorPrimary)
                 holder.name.setTextColor(Color.WHITE)
                 holder.time.setTextColor(Color.WHITE)
@@ -75,11 +68,10 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
                 holder.indicator.setColorFilter(Color.WHITE)
 
                 holder.node.setCardBackgroundColor(colorPrimary)
-                holder.lineTop.setBackgroundColor(colorPrimary) // المسار اللي قبلها اكتمل
-                holder.lineBottom.setBackgroundColor(colorDefaultLine) // المسار اللي بعدها لسه
+                holder.lineTop.setBackgroundColor(colorPrimary)
+                holder.lineBottom.setBackgroundColor(colorDefaultLine)
             }
             item.isPassed -> {
-                // الصلوات الفائتة (لون باهت، والمسار بتاعها اكتمل وبقى أخضر)
                 holder.card.setCardBackgroundColor(colorCardBg)
                 holder.name.setTextColor(colorPassed)
                 holder.time.setTextColor(colorPassed)
@@ -90,7 +82,6 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
                 holder.lineBottom.setBackgroundColor(colorPrimary)
             }
             item.isSunrise -> {
-                // الشروق (لون ذهبي مميز عشان مش صلاة فرض)
                 holder.card.setCardBackgroundColor(colorCardBg)
                 holder.name.setTextColor(ContextCompat.getColor(context, R.color.colorSecondary))
                 holder.time.setTextColor(ContextCompat.getColor(context, R.color.colorSecondary))
@@ -98,7 +89,6 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
 
                 holder.node.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorSecondary))
 
-                // الشروق دايماً بيبقى بعد الفجر، فلو الفجر عدى، خط الشروق يبقى منور
                 if (item.isPassed) {
                     holder.lineTop.setBackgroundColor(colorPrimary)
                     holder.lineBottom.setBackgroundColor(colorPrimary)
@@ -108,7 +98,6 @@ class PrayerTimesAdapter : RecyclerView.Adapter<PrayerTimesAdapter.ViewHolder>()
                 }
             }
             else -> {
-                // الصلوات القادمة العادية (لسه مجاتش)
                 holder.card.setCardBackgroundColor(colorCardBg)
                 holder.name.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
                 holder.time.setTextColor(colorPrimary)
