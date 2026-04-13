@@ -37,11 +37,19 @@ class ShortSurahsActivity : AppCompatActivity() {
 
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
+
+                val startAya = if (jsonObject.has("startAyahNumber")) {
+                    jsonObject.getInt("startAyahNumber")
+                } else {
+                    1
+                }
+
                 list.add(
                     ShortSurah(
                         name = jsonObject.getString("name"),
                         info = jsonObject.getString("info"),
-                        text = jsonObject.getString("text")
+                        text = jsonObject.getString("text"),
+                        startAyahNumber = startAya
                     )
                 )
             }

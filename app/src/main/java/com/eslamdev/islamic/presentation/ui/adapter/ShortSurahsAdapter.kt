@@ -10,7 +10,8 @@ import com.eslamdev.islamic.R
 data class ShortSurah(
     val name: String,
     val text: String,
-    val info: String
+    val info: String,
+    val startAyahNumber: Int
 )
 
 class ShortSurahsAdapter(private val surahsList: List<ShortSurah>) :
@@ -33,18 +34,19 @@ class ShortSurahsAdapter(private val surahsList: List<ShortSurah>) :
         holder.surahName.text = surah.name
         holder.surahInfo.text = surah.info
 
-        holder.surahText.text = formatAyahText(surah.text)
+
+        holder.surahText.text = formatAyahText(surah.text, surah.startAyahNumber)
     }
 
     override fun getItemCount(): Int = surahsList.size
 
 
-    private fun formatAyahText(text: String): String {
+    private fun formatAyahText(text: String, startAyahNumber: Int): String {
         val parts = text.split("۝")
         val builder = java.lang.StringBuilder()
 
         for (i in 0 until parts.size - 1) {
-            val arabicNum = getArabicNumber(i + 1)
+            val arabicNum = getArabicNumber(startAyahNumber + i)
             builder.append(parts[i].trim()).append(" ۝$arabicNum ")
         }
 
