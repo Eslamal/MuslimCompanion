@@ -120,9 +120,9 @@ The app allows users to customize:
 
 Feel free to reach out for feedback, feature requests, or professional opportunities:
 
-* **📧 Email:** [حط_إيميلك_هنا@gmail.com](mailto:حط_إيميلك_هنا@gmail.com)
-* **💼 LinkedIn:** [Eslam on LinkedIn](حط_لينك_لينكد_إن_هنا)
-* **🐙 GitHub:** [EslamDev](https://github.com/Eslamal)
+* **📧 Email:** [eslameng776@gmail.com]
+* **💼 LinkedIn:** [www.linkedin.com/in/eslam-ali-b0b874195]
+* **🐙 GitHub:** [https://github.com/Eslamal]
 
 ---
 **Developed with ❤️ by Eslam**
