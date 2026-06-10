@@ -4,8 +4,6 @@
   <a href="https://muslim-companion.en.uptodown.com/android">
     <img src="https://img.shields.io/badge/Download_on-Uptodown-0145f4?style=for-the-badge&logo=android&logoColor=white" alt="Download on Uptodown" />
   </a>
-  <img src="https://img.shields.io/badge/Downloads-1000%2B-success?style=for-the-badge&logo=googleplay&logoColor=white" alt="1000+ Downloads" />
-  <img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Platform" />
 </div>
 <br/>
 
