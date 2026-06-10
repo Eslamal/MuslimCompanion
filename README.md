@@ -1,9 +1,7 @@
 # 🕌 Muslim Companion - Prayer Times, Quran & Azkar
 
 <div align="center">
-  <a href="<a href='https://muslim-companion.en.uptodown.com/android' title='Download Muslim Companion' >
-                <img src='https://stc.utdstc.com/img/mediakit/download-gio-big.png' alt='Download Muslim Companion'>
-                </a>">
+  <a href="https://muslim-companion.en.uptodown.com/android">
     <img src="https://img.shields.io/badge/Download_on-Uptodown-0145f4?style=for-the-badge&logo=android&logoColor=white" alt="Download on Uptodown" />
   </a>
   <img src="https://img.shields.io/badge/Downloads-1000%2B-success?style=for-the-badge&logo=googleplay&logoColor=white" alt="1000+ Downloads" />
