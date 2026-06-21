@@ -12,7 +12,7 @@ import com.eslamdev.islamic.R
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        //  Full Screen
+        //  To Make Screen Full
         // window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         super.onCreate(savedInstanceState)

@@ -94,7 +94,8 @@ class TafseerDetailActivity : AppCompatActivity() {
                         var ayaText = quranMap[ayaNum] ?: ""
 
                         if (ayaNum == 1 && surahIndex != 1 && surahIndex != 9 && ayaText.contains("بِسْمِ اللَّهِ")) {
-                            ayaText = ayaText.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim()
+                            ayaText =
+                                ayaText.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim()
                         }
 
                         if (ayaNum != -1) {
@@ -110,7 +111,11 @@ class TafseerDetailActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 if (list.isEmpty()) {
-                    Toast.makeText(this@TafseerDetailActivity, "لا يوجد تفسير متاح لهذه السورة حالياً", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@TafseerDetailActivity,
+                        "لا يوجد تفسير متاح لهذه السورة حالياً",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 adapter.submitList(list)
             }

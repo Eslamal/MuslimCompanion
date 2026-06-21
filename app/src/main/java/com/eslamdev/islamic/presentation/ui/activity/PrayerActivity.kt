@@ -43,7 +43,8 @@ class PrayerActivity : AppCompatActivity() {
 
     private var currentCalendar = Calendar.getInstance()
 
-    private val adhanNames = arrayOf("أذان مكة المكرمة", "أذان القاهرة (عبد الباسط)", "أذان المدينة المنورة")
+    private val adhanNames =
+        arrayOf("أذان مكة المكرمة", "أذان القاهرة (عبد الباسط)", "أذان المدينة المنورة")
     private val adhanResIds = arrayOf(R.raw.adhan_mecca, R.raw.adhan_cairo, R.raw.adhan_medina)
 
     private var previewMediaPlayer: MediaPlayer? = null
@@ -117,7 +118,11 @@ class PrayerActivity : AppCompatActivity() {
         dayAdapter.submitList(days, currentCalendar)
 
         val todayCalendar = Calendar.getInstance()
-        val selectedDay: Int = if (isSameMonth(currentCalendar, todayCalendar)) todayCalendar.get(Calendar.DAY_OF_MONTH) else 1
+        val selectedDay: Int = if (isSameMonth(
+                currentCalendar,
+                todayCalendar
+            )
+        ) todayCalendar.get(Calendar.DAY_OF_MONTH) else 1
 
         dayAdapter.selectDay(selectedDay)
         findViewById<RecyclerView>(R.id.recycler_days).scrollToPosition(selectedDay - 1)
@@ -128,7 +133,14 @@ class PrayerActivity : AppCompatActivity() {
     private fun getNextPrayerIndex(timing: PrayerTimingEntity): Int {
         val sdf = SimpleDateFormat("hh:mm a", Locale("ar"))
         val now = Calendar.getInstance()
-        val times = listOf(timing.fajr, timing.sunrise, timing.dhuhr, timing.asr, timing.maghrib, timing.isha)
+        val times = listOf(
+            timing.fajr,
+            timing.sunrise,
+            timing.dhuhr,
+            timing.asr,
+            timing.maghrib,
+            timing.isha
+        )
 
         for (i in times.indices) {
             try {
@@ -142,7 +154,9 @@ class PrayerActivity : AppCompatActivity() {
                 if (prayerCal.after(now)) {
                     return i
                 }
-            } catch (e: Exception) { continue }
+            } catch (e: Exception) {
+                continue
+            }
         }
 
         return -1
@@ -182,7 +196,8 @@ class PrayerActivity : AppCompatActivity() {
         soundLayout.addView(labelSound)
 
         val spinnerSound = Spinner(this)
-        val soundAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, adhanNames)
+        val soundAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, adhanNames)
         spinnerSound.adapter = soundAdapter
         soundLayout.addView(spinnerSound)
 
@@ -199,7 +214,12 @@ class PrayerActivity : AppCompatActivity() {
 
         var isInitialSelection = true
         spinnerSound.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 if (isInitialSelection) {
                     isInitialSelection = false
                     return
@@ -208,13 +228,15 @@ class PrayerActivity : AppCompatActivity() {
                 try {
                     previewMediaPlayer?.release()
 
-                    val selectedResId = if (position in adhanResIds.indices) adhanResIds[position] else adhanResIds[0]
+                    val selectedResId =
+                        if (position in adhanResIds.indices) adhanResIds[position] else adhanResIds[0]
                     previewMediaPlayer = MediaPlayer.create(this@PrayerActivity, selectedResId)
                     previewMediaPlayer?.start()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -238,7 +260,8 @@ class PrayerActivity : AppCompatActivity() {
 
         val spinnerLocationMode = Spinner(this)
         val locationModes = arrayOf("تلقائي (GPS)", "اختر المحافظة والمدينة")
-        spinnerLocationMode.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, locationModes)
+        spinnerLocationMode.adapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, locationModes)
         layout.addView(spinnerLocationMode)
 
         val citySelectionLayout = LinearLayout(this)
@@ -260,7 +283,8 @@ class PrayerActivity : AppCompatActivity() {
         layout.addView(citySelectionLayout)
 
         val governoratesList = EgyptianCities.governorates.keys.toList()
-        val govAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, governoratesList)
+        val govAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, governoratesList)
         spinnerGov.adapter = govAdapter
 
         var selectedLat = 0.0
@@ -268,23 +292,39 @@ class PrayerActivity : AppCompatActivity() {
         var selectedCityName = ""
 
         spinnerGov.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 val selectedGov = governoratesList[position]
                 val cities = EgyptianCities.governorates[selectedGov] ?: emptyList()
                 val cityNames = cities.map { it.name }
-                val cityAdapter = ArrayAdapter(this@PrayerActivity, android.R.layout.simple_spinner_dropdown_item, cityNames)
+                val cityAdapter = ArrayAdapter(
+                    this@PrayerActivity,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    cityNames
+                )
                 spinnerCity.adapter = cityAdapter
 
                 spinnerCity.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, cityPos: Int, p3: Long) {
+                    override fun onItemSelected(
+                        p0: AdapterView<*>?,
+                        p1: View?,
+                        cityPos: Int,
+                        p3: Long
+                    ) {
                         val city = cities[cityPos]
                         selectedLat = city.lat
                         selectedLon = city.lon
                         selectedCityName = "${city.name}، $selectedGov"
                     }
+
                     override fun onNothingSelected(p0: AdapterView<*>?) {}
                 }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -293,8 +333,16 @@ class PrayerActivity : AppCompatActivity() {
         labelMethod.setTextColor(Color.BLACK)
         layout.addView(labelMethod)
         val spinnerMethod = Spinner(this)
-        val methods = arrayOf("رابطة العالم الإسلامي", "جامعة كراتشي", "أمريكا الشمالية", "دبي", "المساحة المصرية", "أم القرى")
-        spinnerMethod.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, methods)
+        val methods = arrayOf(
+            "رابطة العالم الإسلامي",
+            "جامعة كراتشي",
+            "أمريكا الشمالية",
+            "دبي",
+            "المساحة المصرية",
+            "أم القرى"
+        )
+        spinnerMethod.adapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, methods)
         layout.addView(spinnerMethod)
 
         val labelMadhab = TextView(this)
@@ -303,7 +351,8 @@ class PrayerActivity : AppCompatActivity() {
         layout.addView(labelMadhab)
         val spinnerMadhab = Spinner(this)
         val madhabs = arrayOf("شافعي / مالكي / حنبلي", "حنفي")
-        spinnerMadhab.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, madhabs)
+        spinnerMadhab.adapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, madhabs)
         layout.addView(spinnerMadhab)
 
         spinnerSound.setSelection(prefs.getInt("ADHAN_SOUND_INDEX", 0))
@@ -315,9 +364,15 @@ class PrayerActivity : AppCompatActivity() {
         if (isManual) citySelectionLayout.visibility = View.VISIBLE
 
         spinnerLocationMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 citySelectionLayout.visibility = if (position == 1) View.VISIBLE else View.GONE
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -403,7 +458,8 @@ class PrayerActivity : AppCompatActivity() {
                 val country = addresses[0].countryName ?: ""
                 tvLocationName.text = "$city، $country"
             } else {
-                tvLocationName.text = "Lat: ${String.format("%.2f", lat)}, Lon: ${String.format("%.2f", lon)}"
+                tvLocationName.text =
+                    "Lat: ${String.format("%.2f", lat)}, Lon: ${String.format("%.2f", lon)}"
             }
         } catch (e: Exception) {
             tvLocationName.text = "الموقع الحالي"
@@ -415,12 +471,14 @@ class PrayerActivity : AppCompatActivity() {
         currentCalendar.set(Calendar.DAY_OF_MONTH, 1)
         updateDateAndLoadData()
     }
+
     private fun setupViewModel() {
         val prayerDao = PrayerDatabase.getDatabase(application).prayerTimingDao()
         val repository = PrayerRepository(prayerDao, this)
         val factory = PrayerViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[PrayerHomeViewModel::class.java]
     }
+
     private fun setupRecyclers() {
         val rvDays = findViewById<RecyclerView>(R.id.recycler_days)
         rvDays.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -433,11 +491,15 @@ class PrayerActivity : AppCompatActivity() {
             loadPrayerTimesForDay(day)
         }
     }
+
     private fun loadPrayerTimesForDay(day: Int) {
         val month = currentCalendar.get(Calendar.MONTH) + 1
         val year = currentCalendar.get(Calendar.YEAR)
         val realToday = Calendar.getInstance()
-        val isTodayReal = (day == realToday.get(Calendar.DAY_OF_MONTH) && month == (realToday.get(Calendar.MONTH) + 1) && year == realToday.get(Calendar.YEAR))
+        val isTodayReal =
+            (day == realToday.get(Calendar.DAY_OF_MONTH) && month == (realToday.get(Calendar.MONTH) + 1) && year == realToday.get(
+                Calendar.YEAR
+            ))
         viewModel.getPrayerTimingForSpecificDay(day, month, year, this) { timing ->
             if (timing != null) updatePrayerList(timing, isTodayReal)
         }
@@ -451,7 +513,14 @@ class PrayerActivity : AppCompatActivity() {
         }
 
         val names = listOf("الفجر", "الشروق", "الظهر", "العصر", "المغرب", "العشاء")
-        val times = listOf(timing.fajr, timing.sunrise, timing.dhuhr, timing.asr, timing.maghrib, timing.isha)
+        val times = listOf(
+            timing.fajr,
+            timing.sunrise,
+            timing.dhuhr,
+            timing.asr,
+            timing.maghrib,
+            timing.isha
+        )
 
         val todayCal = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -474,7 +543,6 @@ class PrayerActivity : AppCompatActivity() {
             val isSunrise = (i == 1)
             val isNext = isToday && (i == nextPrayerIndex)
 
-            // تحديد إذا كانت الصلاة قد مرت
             val isPassed = when {
                 isPastDay -> true
                 isToday -> if (nextPrayerIndex != -1) i < nextPrayerIndex else true
@@ -498,7 +566,10 @@ class PrayerActivity : AppCompatActivity() {
         val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         return (1..maxDays).toList()
     }
+
     private fun isSameMonth(cal1: Calendar, cal2: Calendar): Boolean {
-        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH)
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.MONTH) == cal2.get(
+            Calendar.MONTH
+        )
     }
 }

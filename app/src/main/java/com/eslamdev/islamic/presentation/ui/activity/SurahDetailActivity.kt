@@ -52,7 +52,13 @@ class SurahDetailActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val content = generateHtmlContent(index)
             withContext(Dispatchers.Main) {
-                quranWebView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null)
+                quranWebView.loadDataWithBaseURL(
+                    "file:///android_asset/",
+                    content,
+                    "text/html",
+                    "utf-8",
+                    null
+                )
             }
         }
     }
@@ -163,7 +169,9 @@ class SurahDetailActivity : AppCompatActivity() {
 
                         var displayText = rawText
                         if (displayText.contains("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ")) {
-                            displayText = displayText.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim()
+                            displayText =
+                                displayText.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "")
+                                    .trim()
                         }
 
                         if (displayText.isNotEmpty() || targetIndex == 1) {
