@@ -1,6 +1,13 @@
 # 🕌 Muslim Companion - Prayer Times, Quran & Azkar
 
-**Muslim Companion** is a comprehensive Islamic application designed to be a daily assistant for Muslims worldwide. It combines accurate prayer times, Qibla direction, the Holy Quran, daily Azkar, and a massive library of Islamic knowledge in a modern, user-friendly interface that supports both Light and Dark modes.
+<div align="center">
+  <a href="https://muslim-companion.en.uptodown.com/android">
+    <img src="https://img.shields.io/badge/Download_on-Uptodown-0145f4?style=for-the-badge&logo=android&logoColor=white" alt="Download on Uptodown" />
+  </a>
+</div>
+<br/>
+
+**Muslim Companion** is a comprehensive Islamic application trusted by over **1000+ users** worldwide. It is designed to be a daily assistant for Muslims, combining accurate prayer times, Qibla direction, the Holy Quran, daily Azkar, and a massive library of Islamic knowledge in a modern, user-friendly interface that supports both Light and Dark modes.
 
 ## 🚀 What's New (Version 1.1.0)
 * **📚 Massive Islamic Library:** Added a comprehensive encyclopedia featuring detailed stories of **100 Sahaba & Sahabiyat** (Companions of the Prophet).
@@ -78,6 +85,7 @@ This project is built using **Native Android (Kotlin)**, following the **Clean A
 
 ### 🧮 Libraries
 * **BatoulApps/Adhan:** A specialized astronomical library used to calculate accurate prayer times and Qibla direction based on the user's coordinates and date.
+
 ---
 
 ## 📸 App Screenshots
@@ -91,6 +99,7 @@ Here is a visual tour of the application features (Light & Dark Mode):
 | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-05.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-07.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-08.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-09.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-10.jpg" width="160"/> |
 | <img src="app/IslamicAppScreens/photo_2026-01-08_00-51-11.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-01-08_00-52-08.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-04-13_11-41-19.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-04-13_11-41-21.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-04-13_11-41-23.jpg" width="160"/> |
 | <img src="app/IslamicAppScreens/photo_2026-04-13_11-41-24.jpg" width="160"/> | <img src="app/IslamicAppScreens/photo_2026-04-13_11-41-26.jpg" width="160"/> | | | |
+
 ---
 
 ## ⚙️ Configuration
@@ -100,5 +109,16 @@ The app allows users to customize:
 * **Calculation Method:** Choose from various global standards.
 * **Madhab:** Standard or Hanafi.
 * **Adhan Voice:** Select preferred Muezzin.
+
 ---
-**Developed with ❤️ by [Eslam]**
+
+## 📬 Contact & Connect
+
+Feel free to reach out for feedback, feature requests, or professional opportunities:
+
+* **📧 Email:** [eslameng776@gmail.com]
+* **💼 LinkedIn:** [www.linkedin.com/in/eslam-ali-b0b874195]
+* **🐙 GitHub:** [https://github.com/Eslamal]
+
+---
+**Developed with ❤️ by Eslam**
